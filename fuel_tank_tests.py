@@ -68,32 +68,32 @@ def find_and_plot(algname, search_params, name = '', check_fn = ''):
 def test_max_min_feas():
     '''tests and plots the result for the max_min algorithm
     max_min does not find a feasible solution here'''
-    test_case = perm_instance(([20]*2+[1]*4+[10]*6)*2, "max_min_bad_bad")
-    test_case.soln_attempt_plot(test_case.max_min_soln, 12)
+    test_case = perm_instance(([20]*2+[1]*4+[10]*6)*2, "max_min_bad")
+    test_case.soln_attempt_plot(test_case.max_min, 12)
 
 def test_max_min_gt_feas():
     '''tests and plots the results for the max_min_gt algorithm
     max_min_gt does not find a feasible solution here'''
-    test_case = perm_instance(([20]*2+[1]*4+[10]*6)*3, "max_min_gt_bad_bad")
-    test_case.soln_attempt_plot(test_case.max_min_soln, 12)
+    test_case = perm_instance(([20]*2+[1]*4+[10]*6)*3, "max_min_gt_bad")
+    test_case.soln_attempt_plot(test_case.max_min_gt, 12)
 
 def test_minover_max():
     '''tests and plots the results for the minover_max algorithm
     minover_max succeeds on this instance but max_min fails'''
     test_case = perm_instance((([10]+[20]*3)*2+[20,1]+[20]*3+[1]*3+[10,1,20,1])*7,
                                  "minover_max_bad")
-    test_case.soln_attempt_plot(test_case.M3_soln, 20, scale = 0.5)
-    test_case.soln_attempt_plot(test_case.max_min_soln, 20, scale = 0.5)
+    test_case.soln_attempt_plot(test_case.minover_min, 20, scale = 0.5)
+    test_case.soln_attempt_plot(test_case.max_min, 20, scale = 0.5)
 
 def test_greedy_nonopt():
     '''tests and plots the results for the greedy algorithm
     greedy does not find an optimal solution to this instance'''
-    distances = [1,1,1,24]*2
+    distances = [1,1,1,24,1,1,24]
     fuels = [4, 6, 8, 8, 8, 9, 10]
     OPT = 24
     OPTsoln = Solution([4, 6, 8, 9, 8, 8, 10],0)
     test_case = Fuel_Tank_Problem(fuels, distances, OPT, OPTsoln, 'greedy_bad')
-    test_case.soln_attempt_plot(test_case.greedy)
+    test_case.soln_attempt_plot(test_case.greedy, **{'ratio':1})
     
 #random searches:
 
@@ -122,7 +122,12 @@ def search_minover_max_feas():
                   'minover_max')
 
 def main():
-    pass
-
+    #test_max_min_feas() *
+    #test_max_min_gt_feas() *
+    #test_minover_max() *
+    #test_greedy_nonopt() *
+    
+    
 if __name__ == '__main__':
     main()
+

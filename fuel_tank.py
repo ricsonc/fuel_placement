@@ -9,7 +9,7 @@ from pkgutil import find_loader
 from importlib import import_module
 
 #test if matplotlib is available
-if find_loader(matplotlib) is not None:
+if find_loader('matplotlib') is not None:
     import matplotlib.pyplot as plt
     from matplotlib import rcParams as rcp
     MPL = True
@@ -77,7 +77,7 @@ class Fuel_Tank_Problem:
         '''checks that all fuel tanks are used exactly once'''
         assert Counter(soln.tank_order) == self.fuels
 
-    def fuel_levels(self, soln, postfuel = False):
+    def fuel_levels(self, soln):
         '''returns the amount of fuel in the tank at each p_i
         soln: a Solution to this instance
         postfuel: a boolean value
@@ -89,8 +89,7 @@ class Fuel_Tank_Problem:
         current_fuel = 0
         for i, x in enumerate(soln.tank_order):
             current_fuel += x
-            if postfuel:
-                fuels.append(current_fuel)
+            fuels.append(current_fuel)
             current_fuel -= rot_distances[i]
             fuels.append(current_fuel)
         return fuels
@@ -115,7 +114,7 @@ class Fuel_Tank_Problem:
             return False
         return True
     
-    def general_soln(self, ratio, soln_p, check_fn = None):
+    def general_soln(self, ratio, soln_p, check_fn = None, lazy = True):
         '''
         returns solutions to the instance
         soln_p is a function that returns a solution starting at point p
@@ -132,6 +131,8 @@ class Fuel_Tank_Problem:
             soln = soln_p(x, ratio)
             if check_fn(soln, ratio):
                 good_solns.append(soln)
+                if lazy:
+                    break
             else:
                 bad_solns.append(soln)
         return Soln_Attempt(bool(good_solns), good_solns, bad_solns)
@@ -159,8 +160,13 @@ class Fuel_Tank_Problem:
         '''the greedy algorithm applied to this instance at some start'''
         def greedy_selection(current_fuel, tfuels):
             '''select the largest which does not exceed the bound'''
-            return max(((fuel if current_fuel + fuel <= self.OPT*ratio else 0)
-                        for fuel in tfuels))
+            smallest_tank = min(tfuels)
+            tank_size = self.OPT*ratio
+            if current_fuel + smallest_tank > tank_size:
+                return smallest_tank
+            else:
+                return max((fuel for fuel in tfuels
+                            if current_fuel+fuel <= tank_size))
         return self.general_soln_p(start, greedy_selection)
         
     def greedy(self, ratio = 2, check_fn = None):
@@ -174,7 +180,7 @@ class Fuel_Tank_Problem:
             '''select the smallest tank if under or at OPT, else select largest
             '''
             return min(tfuels) if current_fuel >= self.OPT else max(tfuels)
-        return self.general_soln_p(start, 1, max_min_selection)
+        return self.general_soln_p(start, max_min_selection)
     
     def max_min(self, ratio = 3, check_fn = None):
         '''max min algorithm applied to this instance
@@ -186,7 +192,7 @@ class Fuel_Tank_Problem:
         def max_min_selection(current_fuel, tfuels):
             '''same as max_min_p, but inequality is exclusive'''
             return min(tfuels) if current_fuel > self.OPT else max(tfuels)
-        return self.general_soln_p(start, 1, max_min_selection)
+        return self.general_soln_p(start, max_min_selection)
     
     def max_min_gt(self, ratio = 3, check_fn = None):
         '''max min gt algorithm:
@@ -202,7 +208,7 @@ class Fuel_Tank_Problem:
                     else (max(tfuels) if max(tfuels)+current_fuel < self.OPT
                           else min([fuel for fuel in tfuels
                                     if fuel+current_fuel >= self.OPT])))
-        return self.general_soln_p(start, 1, minover_min_selection)
+        return self.general_soln_p(start, minover_min_selection)
 
     def minover_min(self, ratio = 3, check_fn = None):
         '''minover min algorithm
@@ -257,7 +263,7 @@ class Fuel_Tank_Problem:
         rcp['ytick.major.size'] = width*10
 
         #plots the fuel graph and horizontal bars
-        levels = self.fuel_levels(soln, postfuel = True)
+        levels = self.fuel_levels(soln)
         rot_dists = rotate(self.distances, soln.start)
         cum_dist_npf = reduce(lambda c, x: c + [c[-1] + x], rot_dists, [0])
         cum_dist = list(chain(*zip(*([cum_dist_npf]*2))))
@@ -266,10 +272,11 @@ class Fuel_Tank_Problem:
         for bar in hbars:
             plt.axhline(bar*self.OPT, 0, self.L, linewidth = width,
                         c = ('r' if bar else 'k'))
-            if self.OPTsoln:
-                olevels = self.fuel_levels(self.OPTsoln, postfuel = True)[:-1]
-                optline, = plt.plot(cum_dist, rotate(olevels, 2*soln.start)+[0],
-                                    linewidth = width/2, linestyle = ':', c='b')
+            if self.OPTsoln: #the last one is incorrect!
+                olevels = self.fuel_levels(self.OPTsoln)[:-1]
+                opt_fuels = rotate(olevels, 2*soln.start)
+                optline, = plt.plot(cum_dist, opt_fuels+[opt_fuels[0]],
+                                    linewidth = width/3, linestyle = ':', c='b')
                 optline.set_dashes([.5,.5])
         plt.plot(cum_dist, levels, linewidth = width, c = 'b')
 
@@ -303,11 +310,12 @@ class Fuel_Tank_Problem:
         if verbose:
             print "drawn " + writeto
 
-    def soln_attempt_plot(self, alg, maxfails = 0, scale = 1, verbose = True):
+    def soln_attempt_plot(self, alg, starts = 0, scale = 1, verbose = True,
+                          **kwargs):
         '''plots the result of an algorithm which returns a Soln_Attempt
-        maxfails specifies the number of starting points which should be
+        starts specifies the number of starting points which should be
         plotted, starting from the first'''
-        attempt = alg()
+        attempt = alg(**kwargs)
         if attempt.success:
             if verbose:
                 print "success"
@@ -317,7 +325,7 @@ class Fuel_Tank_Problem:
             if verbose:
                 print "failed"
             for i, x in enumerate(attempt.fails):
-                if not maxfails or i < maxfails:
+                if not starts or i < starts:
                     self.plot_soln(x, '/'+alg.__name__+'-fail-'+str(i),
                                    scale = scale)
 
