@@ -17,20 +17,9 @@ else:
     print "matplotlib not found"
     print "plotting will not be possible"
     MPL = False
+
+#helper functions:
     
-#A solution to an instance of the problem consists of:
-#1. The list of fuel tanks f_1, f_2, .... f_n which are
-#   placed, starting at the starting point
-#2. The starting point, which is some number from 1 to n
-Solution = namedtuple("Solution", ['tank_order', 'start'])
-
-#A solution attempt consists of
-#1. A boolean variable which is true if a solution has been found
-#   or false if no solutions have been found
-#2. A list of solutions (feasible and stays under alpha times OPT)
-#3. A list of solutions which fail the previous constraint
-Soln_Attempt = namedtuple("Soln_Attempt", ['success', 'solns', 'fails'])
-
 def rotate(lst, i):
     '''rotates a list forward by i elements'''
     return lst[i:] + lst[:i]
@@ -45,6 +34,22 @@ def preparedir(file):
     if directory and not path.exists(directory):
         makedirs(directory)
 
+#class definitions:
+        
+class Solution(namedtuple("Solution", ['tank_order', 'start'])):
+    '''A solution to an instance of the problem consists of:
+    1. The list of fuel tanks f_1, f_2, .... f_n placed at positions
+    p_k, p_k+1, ... p_k-1, where p_k is the start position
+    2. The starting point, which is some integer from 1 to n'''
+
+
+class Soln_Attempt(namedtuple("Soln_Attempt", ['success', 'solns', 'fails'])):
+    '''A solution attempt consists of
+    1. a boolean which is true iff successful solutions found
+    2. A list of solutions (feasible and stays under alpha times OPT)
+    3. A list of solutions which fail the previous constraint'''
+
+
 class Fuel_Tank_Problem:
     '''instance of the fuel tank problem'''
     
@@ -57,8 +62,7 @@ class Fuel_Tank_Problem:
         OPTsoln: an optimal Solution which is solves this problem
         name: specifies the location that plots will be stored
         '''
-        
-        assert sum(fuels) == sum(distances) #check validity
+        assert sum(fuels) == sum(distances)
         self.fuels = Counter(fuels)
         self.distances = distances
         self.n = len(fuels)
@@ -67,11 +71,8 @@ class Fuel_Tank_Problem:
         self.OPTsoln = OPTsoln
         self.name = name
         
-    def save(self):
-        '''save the instance to disk'''
-        with open(self.name, 'r') as ouf:
-            dump(ouf)
-        
+    #helper functions:
+            
     def valid_soln(self, soln):
         '''checks that all fuel tanks are used exactly once'''
         assert Counter(soln.tank_order) == self.fuels
@@ -83,7 +84,6 @@ class Fuel_Tank_Problem:
         if postfuel is true, the list contains also the amount of fuel the tank 
         has after it is filled at each p_i but before it has moved to p_i+1
         '''
-        
         rot_distances = rotate(self.distances, soln.start)
         fuels = [0]
         current_fuel = 0
@@ -99,7 +99,6 @@ class Fuel_Tank_Problem:
         '''checks that at all times, the fuel in the tank is:
         1. above 0
         2. below ratio times opt'''
-        
         self.valid_soln(soln)
         fuels = self.fuel_levels(soln)
         if min(fuels) < 0 or max(fuels) > ratio*self.OPT:
@@ -110,7 +109,6 @@ class Fuel_Tank_Problem:
         '''checks that at all times, the fuel in tank is:
         1. below ratio times opt
         does not check for above 0'''
-        
         self.valid_soln(soln)
         fuels = self.fuel_levels(soln)
         if max(fuels) > ratio*self.OPT:
@@ -127,7 +125,6 @@ class Fuel_Tank_Problem:
         2. cases on which the algorithm succeeded
         3. cases on which the algorithm failed
         '''
-        
         check_fn = check_fn if check_fn else self.check_soln
         good_solns = []
         bad_solns = []
@@ -144,7 +141,6 @@ class Fuel_Tank_Problem:
         start: the starting point of the solution
         selection_fn: takes the current fuel in tank, and available tanks left
                       returns the tank which is selected next'''
-        
         rot_distances = rotate(self.distances, start)
         current_fuel = 0
         tank_order = []
@@ -156,6 +152,8 @@ class Fuel_Tank_Problem:
             current_fuel += pick_tank
             current_fuel -= distance
         return Solution(tank_order, start)
+
+    #implementation of algorithms:
     
     def greedy_p(self, start, ratio):
         '''the greedy algorithm applied to this instance at some start'''
@@ -227,14 +225,11 @@ class Fuel_Tank_Problem:
             if(check_soln(soln, 1)):
                 return Soln_Attempt(true, [soln], [])
         return Soln_Attempt(false, [], [soln])
+
+    #I/O functions:
     
     def plot_soln(self, soln, name = '', hbars = [-1,0,1,2,3],
                   aspectr = 1, scale = 1, verbose = True):
-        global MPL
-        if not MPL:
-            print "unable to plot -- matplotlib not installed"
-            return
-
         '''plots a Solution:
         name is optional
         hbars are horizontal bars plotted at certain multiples of OPT
@@ -242,6 +237,11 @@ class Fuel_Tank_Problem:
         verbose prints filename once it has been saved to disk
         if python crashes in this function, try reducing scale
         '''
+        #check if matplotlib available
+        global MPL
+        if not MPL:
+            print "unable to plot -- matplotlib not installed"
+            return
         
         #compute font size and line thickness etc
         fontsize = scale*1000./self.L
@@ -320,3 +320,8 @@ class Fuel_Tank_Problem:
                 if not maxfails or i < maxfails:
                     self.plot_soln(x, '/'+alg.__name__+'-fail-'+str(i),
                                    scale = scale)
+                    
+    def save(self):
+        '''save the instance to disk'''
+        with open(self.name, 'r') as ouf:
+            dump(ouf)
