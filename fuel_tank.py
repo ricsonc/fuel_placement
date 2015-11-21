@@ -35,21 +35,21 @@ def preparedir(file):
         makedirs(directory)
 
 #class definitions:
-        
+
 class Solution(namedtuple("Solution", ['tank_order', 'start'])):
     '''A solution to an instance of the problem consists of:
     1. The list of fuel tanks f_1, f_2, .... f_n placed at positions
     p_k, p_k+1, ... p_k-1, where p_k is the start position
     2. The starting point, which is some integer from 1 to n'''
 
-
+    
 class Soln_Attempt(namedtuple("Soln_Attempt", ['success', 'solns', 'fails'])):
     '''A solution attempt consists of
     1. a boolean which is true iff successful solutions found
     2. A list of solutions (feasible and stays under alpha times OPT)
     3. A list of solutions which fail the previous constraint'''
 
-
+    
 class Fuel_Tank_Problem:
     '''instance of the fuel tank problem'''
     

@@ -89,22 +89,24 @@ def test_greedy_nonopt():
 def search_max_min_UB():
     '''searches for and plots a case where
     max_min goes over 3 times optimal'''
-    pass #mode 0
+    #((50,500),(2,7),[1,2,10])
+    pass
 
 def search_greedy_UB():
     '''searches for and plots a case where
     greedy goes over 2 time optimal or fails'''
-    pass #mode 1
+    #((50,3000),(2,11),[1,20,10])
+    pass
 
 def search_greedy_nonopt():
     '''searches for and plots a case where
     greedy gives a nonoptimal solution'''
-    pass #mode 1?
+    #((50,3000),(2,11),[1,20,10])
+    pass
 
 def search_minover_max_feas():
     '''searches for and plots a case where
     minover_max finds no solutions'''
-    pass #mode 0
+    #((50,500),(2,7),[1,2,10])
+    pass
 
-return rand_instance_gen((50, 500), (2, 7), [1, 20, 10])
-return rand_instance_gen((50, 3000), (2, 11), [1, 20, 10])
