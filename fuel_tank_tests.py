@@ -33,7 +33,7 @@ def perm_instance(distances, name = ''):
     OPT = max(distances)
     return Fuel_Tank_Problem(distances, fuels, OPT, OPTsoln, name)
     
-def find_bad_case(alg_name, rand_gen_parameters, name = '', check_fn_name = '',
+def find_bad_case(alg_name, rand_gen_params, name = '', check_fn_name = None,
                   verbose = 100):
     '''returns an instance of Fuel Tank Problem
     given rand_instance_gen parameters
@@ -45,7 +45,7 @@ def find_bad_case(alg_name, rand_gen_parameters, name = '', check_fn_name = '',
         i += 1
         if verbose and not i%verbose:
             print i,
-        candidate = bad_case_gen(mode = m if type(m) == type(1) else m())
+        candidate = rand_perm_instance_gen(*rand_gen_params)
         soln_fn = getattr(candidate, alg_name)
         soln_a = (soln_fn() if not checkmode
                   else soln_fn(check_fn = getattr(cand_inst, checkmode)))
@@ -88,9 +88,13 @@ def test_minover_max():
 def test_greedy_nonopt():
     '''tests and plots the results for the greedy algorithm
     greedy does not find an optimal solution to this instance'''
-    #nonpermutation instance
-    pass
-
+    distances = [1,1,1,24]*2
+    fuels = [4, 6, 8, 8, 8, 9, 10]
+    OPT = 24
+    OPTsoln = Solution([4, 6, 8, 9, 8, 8, 10],0)
+    test_case = Fuel_Tank_Problem(fuels, distances, OPT, OPTsoln, 'greedy_bad')
+    test_case.soln_attempt_plot(test_case.greedy)
+    
 #random searches:
 
 def search_max_min_UB():
@@ -117,4 +121,8 @@ def search_minover_max_feas():
     find_and_plot('minover_max', ((50,500),(2,7),[1,2,10]),
                   'minover_max')
 
-#fix find bad case
+def main():
+    pass
+
+if __name__ == '__main__':
+    main()
