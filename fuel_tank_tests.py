@@ -9,7 +9,6 @@ def rand_perm_instance_gen((min_size, max_size), (min_reps, max_reps),
     a selected pattern is repeated between min_reps and max_reps times
     all distances are selected from the list distances
     with relative frequencies rel_freqs (a small integer list)
-    also returns the period of each cyle
     '''
     size = randint(min_size, max_size)
     cycles = randint(min_reps, max_reps)
@@ -22,7 +21,7 @@ def rand_perm_instance_gen((min_size, max_size), (min_reps, max_reps),
     distance_order = []
     for i in xrange(size):
         distance_order.append(choice(distances_p))
-    return perm_instance(distance_order*cycles), size
+    return perm_instance(distance_order*cycles)
 
 def perm_instance(distances, name = ''):
     '''returns an instance of Fuel Tank Problem
@@ -53,6 +52,14 @@ def find_bad_case(alg_name, rand_gen_parameters, name = '', check_fn_name = '',
         if not soln_a.success:
             cand_inst.name = name if name else alg_name
             return cand_inst
+
+def find_and_plot(algname, search_params, name = '', check_fn = ''):
+    '''searches for a bad case using find_bad_case
+    then plots the test case with soln_attempt_plot
+    then saves the test case to disk'''
+    test_case = find_bad_case(algname, search_params, name, check_fn)
+    test_case.soln_attempt_plot(getattr(test_case,algname))
+    test_case.save()
 
 ##actual tests:
 
@@ -89,24 +96,25 @@ def test_greedy_nonopt():
 def search_max_min_UB():
     '''searches for and plots a case where
     max_min goes over 3 times optimal'''
-    #((50,500),(2,7),[1,2,10])
-    pass
+    find_and_plot('max_min', ((50,500),(2,7),[1,2,10]), 'max_min_UB',
+                  'check_soln_UB')
 
-def search_greedy_UB():
+def search_greedy_2OPT():
     '''searches for and plots a case where
     greedy goes over 2 time optimal or fails'''
-    #((50,3000),(2,11),[1,20,10])
-    pass
+    find_and_plot('greedy', ((50,3000),(2,11),[1,20,10]),
+                  'greedy_2OPT')
 
 def search_greedy_nonopt():
     '''searches for and plots a case where
     greedy gives a nonoptimal solution'''
-    #((50,3000),(2,11),[1,20,10])
-    pass
+    find_and_plot('greedy', ((50,3000),(2,11),[1,20,10]),
+                  'greedy_nonopt')
 
 def search_minover_max_feas():
     '''searches for and plots a case where
     minover_max finds no solutions'''
-    #((50,500),(2,7),[1,2,10])
-    pass
+    find_and_plot('minover_max', ((50,500),(2,7),[1,2,10]),
+                  'minover_max')
 
+#fix find bad case

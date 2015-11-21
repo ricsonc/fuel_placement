@@ -215,7 +215,7 @@ class Fuel_Tank_Problem:
         fuels = self.fuel_levels(Solution(tanks, 0))
         return fuels.index(min(fuels))
 
-    def brute_force_soln(self):
+    def brute_force(self):
         '''brute forces an optimal strategy in n! time
         does not return all failed attempts
         this function is untested!'''
@@ -320,8 +320,9 @@ class Fuel_Tank_Problem:
                 if not maxfails or i < maxfails:
                     self.plot_soln(x, '/'+alg.__name__+'-fail-'+str(i),
                                    scale = scale)
-                    
+
     def save(self):
         '''save the instance to disk'''
         with open(self.name, 'r') as ouf:
             dump(ouf)
+            
