@@ -54,14 +54,6 @@ def find_bad_case(alg_name, rand_gen_parameters, name = '', check_fn_name = '',
             cand_inst.name = name if name else alg_name
             return cand_inst
 
-def find_and_plot_case(alg_name, rand_gen_params,
-                       name = '', check_fn_name = ''):
-    '''finds a bad case with find_bad_case
-    plots the case and saves it to file'''
-    bad_case = get_bad_case_mm()
-    bad_case.soln_attempt_plot(bad_case.max_min_soln, scale = 0.5)
-    bad_case.save()
-
 ##actual tests:
 
 #specific instances:
@@ -114,14 +106,5 @@ def search_minover_max_feas():
     minover_max finds no solutions'''
     pass #mode 0
 
-def bad_case_gen(mode = 1):
-    if mode == 1:
-        return rand_instance_gen((50, 500), (2, 7), [1, 20, 10])
-    elif mode == 2:
-        return rand_instance_gen((10,1000), (2, 10), range(20))
-    elif mode == 3:
-        return rand_instance_gen((10,1000), (2, 10), range(10,20))
-    elif mode == 4:
-        return rand_instance_gen((10,1000), (2, 10), [10,20])
-    else:
-        return rand_instance_gen((50, 3000), (2, 11), [1, 20, 10])
+return rand_instance_gen((50, 500), (2, 7), [1, 20, 10])
+return rand_instance_gen((50, 3000), (2, 11), [1, 20, 10])
