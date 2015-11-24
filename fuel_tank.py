@@ -174,6 +174,13 @@ class Fuel_Tank_Problem:
         assumes that our guess of the min tank size, W = OPT*ratio'''
         return self.general_soln(ratio, self.greedy_p, check_fn)
     
+    def greedy_fixed(self, ratio = 2, check_fn = None):
+        '''greedy algorithm only at starting point'''
+        start_soln = self.greedy_p(0, ratio)
+        if check_fn(start_soln, ratio):
+            return Soln_Attempt(True, [start_soln], [])
+        return Soln_Attempt(False, [], [start_soln])
+
     def max_min_p(self, start, ratio = 1):
         '''the max min algorithm applied to this instance at some start'''
         def max_min_selection(current_fuel, tfuels):

@@ -106,33 +106,35 @@ def search_max_min_UB():
 def search_greedy_2OPT():
     '''searches for and plots a case where
     greedy goes over 2 time optimal or fails'''
-    find_and_plot('greedy', ((5,50),(2,11),[1,20,10]),
-                  'greedy_2OPT')
+    find_and_plot('greedy', ((5,50),(2,11),[1,20,10]), 'greedy_2OPT')
 
-def search_greedy_nonopt():
+def search_greedy_OPT():
     '''searches for and plots a case where
     greedy gives a nonoptimal solution'''
-    find_and_plot('greedy', ((5,50),(2,11),[1,20,10]),
-                  'greedy_nonopt')
+    find_and_plot('greedy', ((5,50),(2,11),[1,20,10]), 'greedy_nonopt')
 
 def search_minover_max_feas():
     '''searches for and plots a case where
     minover_max finds no solutions'''
-    find_and_plot('minover_min', ((5,50),(2,11),[1,2,10]),
-                  'minover_min')
+    find_and_plot('minover_min', ((5,50),(2,11),[1,2,10]), 'minover_min')
 
+def search_greedy_fixed_OPT():
+    '''searches for and plots a case where greedy 
+    gives a nonoptimal solution starting at p_0'''
+    find_and_plot('greedy_fixed', ((5,50),(2,11),[1,20,10]), 'greedy_fixed_opt')
+    
 def main():
-    pass
     #examples below:
     #test_max_min_feas()
     #test_max_min_gt_feas()
     #test_minover_max()
-    #test_greedy_nonopt()
+    #test_greedy_OPT()
     #search_max_min_UB()
     #search_greedy_2OPT()
     #search_greedy_nonopt()
     #search_minover_max_feas()
-
+    search_greedy_fixed_OPT()
+    
 if __name__ == '__main__':
     main()
 
