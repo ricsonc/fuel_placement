@@ -1,10 +1,10 @@
-from fuel_tank import *
+from fuel_placement import *
 
 #helper functions:
 
 def rand_perm_instance_gen((min_size, max_size), (min_reps, max_reps),
                            distances, rel_freqs = None):
-    '''generates an instance of Fuel Tank Problem such that:
+    '''generates an instance of Fuel Placement Problem such that:
     number of tanks is between min_size and max_size
     a selected pattern is repeated between min_reps and max_reps times
     all distances are selected from the list distances
@@ -24,18 +24,18 @@ def rand_perm_instance_gen((min_size, max_size), (min_reps, max_reps),
     return perm_instance(distance_order*cycles)
 
 def perm_instance(distances, name = ''):
-    '''returns an instance of Fuel Tank Problem
+    '''returns an instance of Fuel Placement Problem
     where fuels are a permutation of the distances
     given a list of distances
     and an optional name'''
     fuels = distances[:]
     OPTsoln = Solution(distances[:],0)
     OPT = max(distances)
-    return Fuel_Tank_Problem(distances, fuels, OPT, OPTsoln, name)
+    return Fuel_Placement_Problem(distances, fuels, OPT, OPTsoln, name)
     
 def find_bad_case(alg_name, rand_gen_params, name = '', check_fn_name = None,
                   verbose = 100):
-    '''returns an instance of Fuel Tank Problem
+    '''returns an instance of Fuel Placement Problem
     given rand_instance_gen parameters
     which will fail when checked with the function with name check_fn_name
     note: only generates and tests permutation cases
@@ -92,7 +92,7 @@ def test_greedy_OPT():
     fuels = [4, 6, 8, 8, 8, 9, 10]
     OPT = 24
     OPTsoln = Solution([4, 6, 8, 9, 8, 8, 10],0)
-    test_case = Fuel_Tank_Problem(fuels, distances, OPT, OPTsoln, 'greedy_bad')
+    test_case = Fuel_Placement_Problem(fuels, distances, OPT, OPTsoln, 'greedy_bad')
     test_case.soln_attempt_plot(test_case.greedy, **{'ratio':1})
     
 #random searches:

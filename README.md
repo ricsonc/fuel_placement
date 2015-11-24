@@ -1,12 +1,12 @@
-Fuel Tank Problem
+Fuel Placement Problem
 
 
-fuel_tank.py 
+fuel_placement.py 
 
 contains the main class
 
 
-fuel_tank_tests.py 
+fuel_placement_tests.py 
 
 contains several tests, and also searches for bad instances of the problem
 

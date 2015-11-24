@@ -50,12 +50,12 @@ class Soln_Attempt(namedtuple("Soln_Attempt", ['success', 'solns', 'fails'])):
     3. A list of solutions which fail the previous constraint'''
 
     
-class Fuel_Tank_Problem:
-    '''instance of the fuel tank problem'''
+class Fuel_Placement_Problem:
+    '''instance of the fuel placement problem'''
     
     def __init__(self, fuels, distances, OPT = 0, OPTsoln = None,
-                 name = 'fuel_tank_problem'):
-        '''Initialize a new instance of the fuel tank problem
+                 name = 'fuel_placement_problem'):
+        '''Initialize a new instance of the fuel placement problem
         fuels: a list of available fuel tanks
         distances: a list of distances between possible tank positions
         OPT: the minimum fuel tank size possible
