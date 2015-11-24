@@ -185,8 +185,8 @@ class Fuel_Tank_Problem:
     def max_min_p(self, start, ratio = 1):
         '''the max min algorithm applied to this instance at some start'''
         def max_min_selection(current_fuel, tfuels):
-            '''select the smallest tank if under or at OPT, else select largest
-            '''
+            '''select the smallest tank if under or at OPT
+            else select largest'''
             return min(tfuels) if current_fuel >= self.OPT else max(tfuels)
         return self.general_soln_p(start, max_min_selection)
     
