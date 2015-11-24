@@ -177,6 +177,7 @@ class Fuel_Tank_Problem:
     def greedy_fixed(self, ratio = 2, check_fn = None):
         '''greedy algorithm only at starting point'''
         start_soln = self.greedy_p(0, ratio)
+        check_fn = check_fn if check_fn else self.check_soln
         if check_fn(start_soln, ratio):
             return Soln_Attempt(True, [start_soln], [])
         return Soln_Attempt(False, [], [start_soln])

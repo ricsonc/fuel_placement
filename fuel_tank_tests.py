@@ -61,7 +61,7 @@ def find_and_plot(algname, search_params, name = '', check_fn = ''):
     test_case.soln_attempt_plot(getattr(test_case,algname), scale = .5)
     test_case.save()
 
-##actual tests:
+##tests:
 
 #specific instances:
 
@@ -85,7 +85,7 @@ def test_minover_max():
     test_case.soln_attempt_plot(test_case.minover_min, 20, scale = 0.5)
     test_case.soln_attempt_plot(test_case.max_min, 20, scale = 0.5)
 
-def test_greedy_nonopt():
+def test_greedy_OPT():
     '''tests and plots the results for the greedy algorithm
     greedy does not find an optimal solution to this instance'''
     distances = [1,1,1,24,1,1,24]
@@ -103,6 +103,11 @@ def search_max_min_UB():
     find_and_plot('max_min', ((5,50),(2,11),[1,20,10]), 'max_min_UB',
                   'check_soln_UB')
 
+def search_minover_max_feas():
+    '''searches for and plots a case where
+    minover_max finds no solutions'''
+    find_and_plot('minover_min', ((5,50),(2,11),[1,2,10]), 'minover_min')
+    
 def search_greedy_2OPT():
     '''searches for and plots a case where
     greedy goes over 2 time optimal or fails'''
@@ -111,29 +116,25 @@ def search_greedy_2OPT():
 def search_greedy_OPT():
     '''searches for and plots a case where
     greedy gives a nonoptimal solution'''
-    find_and_plot('greedy', ((5,50),(2,11),[1,20,10]), 'greedy_nonopt')
-
-def search_minover_max_feas():
-    '''searches for and plots a case where
-    minover_max finds no solutions'''
-    find_and_plot('minover_min', ((5,50),(2,11),[1,2,10]), 'minover_min')
+    find_and_plot('greedy', ((5,50),(2,11),[1,20,10]), 'greedy_OPT')
 
 def search_greedy_fixed_OPT():
     '''searches for and plots a case where greedy 
     gives a nonoptimal solution starting at p_0'''
-    find_and_plot('greedy_fixed', ((5,50),(2,11),[1,20,10]), 'greedy_fixed_opt')
+    find_and_plot('greedy_fixed', ((5,100),(2,11),range(30)), 'greedy_fixed_opt')
     
 def main():
-    #examples below:
+    pass
+    #uncomment an example below
     #test_max_min_feas()
     #test_max_min_gt_feas()
     #test_minover_max()
     #test_greedy_OPT()
     #search_max_min_UB()
-    #search_greedy_2OPT()
-    #search_greedy_nonopt()
     #search_minover_max_feas()
-    search_greedy_fixed_OPT()
+    #search_greedy_2OPT()
+    #search_greedy_OPT()
+    #search_greedy_fixed_OPT()
     
 if __name__ == '__main__':
     main()
