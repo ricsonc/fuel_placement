@@ -121,7 +121,7 @@ def search_greedy_OPT():
 def search_greedy_fixed_OPT():
     '''searches for and plots a case where greedy 
     gives a nonoptimal solution starting at p_0'''
-    find_and_plot('greedy_fixed', ((5,100),(2,11),range(30)), 'greedy_fixed_opt')
+    find_and_plot('greedy_fixed', ((1,100),(2,5),[1,20,10]), 'greedy_fixed_opt')
     
 def main():
     pass

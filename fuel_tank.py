@@ -280,7 +280,7 @@ class Fuel_Tank_Problem:
         for bar in hbars:
             plt.axhline(bar*self.OPT, 0, self.L, linewidth = width,
                         c = ('r' if bar else 'k'))
-            if self.OPTsoln: #the last one is incorrect!
+            if self.OPTsoln:
                 olevels = self.fuel_levels(self.OPTsoln)[:-1]
                 opt_fuels = rotate(olevels, 2*soln.start)
                 optline, = plt.plot(cum_dist, opt_fuels+[opt_fuels[0]],
