@@ -92,8 +92,32 @@ def test_greedy_OPT():
     fuels = [4, 6, 8, 8, 8, 9, 10]
     OPT = 24
     OPTsoln = Solution([4, 6, 8, 9, 8, 8, 10],0)
-    test_case = Fuel_Placement_Problem(fuels, distances, OPT, OPTsoln, 'greedy_bad')
+    test_case = Fuel_Placement_Problem(fuels, distances, OPT, OPTsoln,
+                                       'greedy_bad')
     test_case.soln_attempt_plot(test_case.greedy, **{'ratio':1})
+
+
+def test_greedy_fixed_2OPT():
+    '''tests and plots the results for the greedy algorithm
+    greedy_fixed does not find an 2 optimal solution to this instance'''
+    distances = [10]+[3]*13+[10]*3
+    fuels = [10]*3+[3]*7+[4]*7
+    OPT = 10
+    OPTsoln = Solution([10]+[4]*7+[3]*7+[10]*2,0)
+    test_case = Fuel_Placement_Problem(fuels, distances, OPT, OPTsoln,
+                                       'greedy_fixed_bad')
+    test_case.soln_attempt_plot(test_case.greedy_fixed)
+
+def test_greedy_2OPT():
+    '''tests and plots the results for the greedy algorithm
+    greedy does not find an 2 optimal solution to this instance'''
+    distances = ([10]+[3]*13+[10]*3)*3
+    fuels = ([10]*3+[3]*7+[4]*7)*3
+    OPT = 10
+    OPTsoln = Solution(([10]+[4]*7+[3]*7+[10]*2)*3,0)
+    test_case = Fuel_Placement_Problem(fuels, distances, OPT, OPTsoln,
+                                       'greedy_bad')
+    test_case.soln_attempt_plot(test_case.greedy, starts = 17)
     
 #random searches:
 
@@ -124,17 +148,19 @@ def search_greedy_fixed_OPT():
     find_and_plot('greedy_fixed', ((1,100),(2,5),[1,20,10]), 'greedy_fixed_opt')
     
 def main():
-    pass
     #uncomment an example below
     #test_max_min_feas()
     #test_max_min_gt_feas()
     #test_minover_max()
     #test_greedy_OPT()
+    #test_greedy_fixed_2OPT()
+    #test_greedy_2OPT()
     #search_max_min_UB()
     #search_minover_max_feas()
     #search_greedy_2OPT()
     #search_greedy_OPT()
     #search_greedy_fixed_OPT()
+    pass
     
 if __name__ == '__main__':
     main()

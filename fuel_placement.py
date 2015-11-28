@@ -223,6 +223,18 @@ class Fuel_Placement_Problem:
         assumes the guess for minimum tank size is OPT
         variant of max_min algorithm'''
         return self.general_soln(ratio, self.minover_min_p, check_fn)
+
+    def general_perm_follow(self):
+        '''returns a solution attempt which follows the permutation solution'''
+        pass
+    
+    def perm_follow_aselection(self):
+        '''follows the after-selected permutation solution of this instance'''
+        pass
+
+    def perm_follow_bselection(self):
+        '''follows the before-selected permutation solution of this instance'''
+        pass
     
     def min_level(self, tanks):
         '''return point at which fuel in tank is least'''
@@ -242,8 +254,8 @@ class Fuel_Placement_Problem:
 
     #I/O functions:
     
-    def plot_soln(self, soln, name = '', hbars = [-1,0,1,2,3],
-                  aspectr = 1, scale = 1, verbose = True):
+    def plot_soln(self, soln, name = '', hbars = [-1,0,1,2,3], aspectr = 1,
+                  scale = 1, verbose = True, annotations = True):
         '''plots a Solution:
         name is optional
         hbars are horizontal bars plotted at certain multiples of OPT
@@ -291,15 +303,16 @@ class Fuel_Placement_Problem:
         #labels points and fuel tanks
         points = zip(cum_dist, levels)
         ax = plt.axes()
-        for i, p in enumerate(points):
-            if i%2:
-                ax.annotate(str(p[0])+','+str(p[1]), (p[0], p[1]+margin/4.),
-                            fontsize = fontsize, color = 'g')
-            if i and i%2 and i < len(points)-2:
-                lastpoint = points[i-1]
-                mp = midpoint(p, lastpoint)
-                ax.annotate(p[1]-lastpoint[1], (mp[0]+margin/4, mp[1]),
-                            fontsize = fontsize, color = 'm')
+        if annotations:
+            for i, p in enumerate(points):
+                if i%2:
+                    ax.annotate(str(p[0])+','+str(p[1]), (p[0], p[1]+margin/4.),
+                                fontsize = fontsize, color = 'g')
+                if i and i%2 and i < len(points)-2:
+                    lastpoint = points[i-1]
+                    mp = midpoint(p, lastpoint)
+                    ax.annotate(p[1]-lastpoint[1], (mp[0]+margin/10, mp[1]),
+                                fontsize = fontsize, color = 'm')
 
         #adjust axes
         ax.set_xlabel('cumulative distance', fontsize = fontsize*2)
@@ -307,8 +320,11 @@ class Fuel_Placement_Problem:
         ax.set_aspect(aspectr)
         ax.set_xlim(0, self.L)
         ax.set_ylim(min(levels)-margin, max(levels)+margin)
-        plt.xticks(cum_dist_npf)
-
+        if annotations:
+            plt.xticks(cum_dist_npf)
+        else:
+            plt.xticks([])
+            
         #save figure
         writeto = self.name+name+'.png'
         preparedir(writeto)
@@ -319,7 +335,7 @@ class Fuel_Placement_Problem:
             print "drawn " + writeto
 
     def soln_attempt_plot(self, alg, starts = 0, scale = 1, verbose = True,
-                          **kwargs):
+                          annot = True, **kwargs):
         '''plots the result of an algorithm which returns a Soln_Attempt
         starts specifies the number of starting points which should be
         plotted, starting from the first'''
@@ -327,15 +343,15 @@ class Fuel_Placement_Problem:
         if attempt.success:
             if verbose:
                 print "success"
-            self.plot_soln(attempt.solns[0], '-'+alg.__name__+'-success',
-                           scale = scale)
+            self.plot_soln(attempt.solns[0], '/'+alg.__name__+'-success',
+                           scale = scale, annotations = annot)
         else:
             if verbose:
                 print "failed"
             for i, x in enumerate(attempt.fails):
                 if not starts or i < starts:
                     self.plot_soln(x, '/'+alg.__name__+'-fail-'+str(i),
-                                   scale = scale)
+                                   scale = scale, annotations = annot)
 
     def save(self):
         '''save the instance to disk'''
