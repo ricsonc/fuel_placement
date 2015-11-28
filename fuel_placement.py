@@ -224,16 +224,23 @@ class Fuel_Placement_Problem:
         variant of max_min algorithm'''
         return self.general_soln(ratio, self.minover_min_p, check_fn)
 
-    def general_perm_follow(self):
+    def general_perm_follow(self, perm_soln):
         '''returns a solution attempt which follows the permutation solution'''
+        #sort the tanks
+        #pair the tanks
+        #return constructed instance
         pass
     
     def perm_follow_aselection(self):
         '''follows the after-selected permutation solution of this instance'''
+        #make after-selected permutation solution
+        #return call general_perm_follow
         pass
 
     def perm_follow_bselection(self):
         '''follows the before-selected permutation solution of this instance'''
+        #make before-selected permutation solution
+        #return call general_perm_follow
         pass
     
     def min_level(self, tanks):
