@@ -2,6 +2,7 @@ Fuel Placement Problem
 
 fuel_placement.py :
     contains the main class
+    contains several algorithms for solving instances of the problem
 
 fuel_placement_tests.py :
     contains several tests
