@@ -54,13 +54,14 @@ class Fuel_Placement_Problem:
     '''instance of the fuel placement problem'''
     
     def __init__(self, fuels, distances, OPT = 0, OPTsoln = None,
-                 name = 'fuel_placement_problem'):
+                 name = 'fuel_placement_problem', starts = 0):
         '''Initialize a new instance of the fuel placement problem
         fuels: a list of available fuel tanks
         distances: a list of distances between possible tank positions
         OPT: the minimum fuel tank size possible
         OPTsoln: an optimal Solution which is solves this problem
         name: specifies the location that plots will be stored
+        starts: specifies the number of unique starting points
         '''
         assert sum(fuels) == sum(distances)
         self.fuels = Counter(fuels)
@@ -70,6 +71,7 @@ class Fuel_Placement_Problem:
         self.L = sum(fuels)
         self.OPTsoln = OPTsoln
         self.name = name
+        self.starts = starts
         
     #helper functions:
             
@@ -127,7 +129,7 @@ class Fuel_Placement_Problem:
         check_fn = check_fn if check_fn else self.check_soln
         good_solns = []
         bad_solns = []
-        for x in xrange(self.n):
+        for x in xrange(self.starts if self.starts else self.n):
             soln = soln_p(x, ratio)
             if check_fn(soln, ratio):
                 good_solns.append(soln)
@@ -259,8 +261,12 @@ class Fuel_Placement_Problem:
                 return Soln_Attempt(true, [soln], [])
         return Soln_Attempt(false, [], [soln])
 
-    #I/O functions:
-    
+    #I/O functions and analysis:
+
+    def approx_ratio(self, alg):
+        '''computes the approximation ratio given an algorithm'''
+        pass
+        
     def plot_soln(self, soln, name = '', hbars = [-1,0,1,2,3], aspectr = 1,
                   scale = 1, verbose = True, annotations = True):
         '''plots a Solution:
@@ -341,11 +347,9 @@ class Fuel_Placement_Problem:
         if verbose:
             print "drawn " + writeto
 
-    def soln_attempt_plot(self, alg, starts = 0, scale = 1, verbose = True,
+    def soln_attempt_plot(self, alg, scale = 1, verbose = True,
                           annot = True, **kwargs):
-        '''plots the result of an algorithm which returns a Soln_Attempt
-        starts specifies the number of starting points which should be
-        plotted, starting from the first'''
+        '''plots the result of an algorithm which returns a Soln_Attempt'''
         attempt = alg(**kwargs)
         if attempt.success:
             if verbose:
@@ -356,9 +360,8 @@ class Fuel_Placement_Problem:
             if verbose:
                 print "failed"
             for i, x in enumerate(attempt.fails):
-                if not starts or i < starts:
-                    self.plot_soln(x, '/'+alg.__name__+'-fail-'+str(i),
-                                   scale = scale, annotations = annot)
+                self.plot_soln(x, '/'+alg.__name__+'-fail-'+str(i),
+                               scale = scale, annotations = annot)
 
     def save(self):
         '''save the instance to disk'''

@@ -111,13 +111,24 @@ def test_greedy_fixed_2OPT():
 def test_greedy_2OPT():
     '''tests and plots the results for the greedy algorithm
     greedy does not find an 2 optimal solution to this instance'''
-    distances = ([10]+[3]*13+[10]*3)*3
-    fuels = ([10]*3+[3]*7+[4]*7)*3
-    OPT = 10
-    OPTsoln = Solution(([10]+[4]*7+[3]*7+[10]*2)*3,0)
+    distances = ([2]*5+[5]*4)*5
+    fuels = ([5]*3+[2]*3+[3]*3)*5
+    OPT = 5
+    OPTsoln = Solution(([3]*3+[2]*3+[5]*3)*5,0)
     test_case = Fuel_Placement_Problem(fuels, distances, OPT, OPTsoln,
-                                       'greedy_bad')
-    test_case.soln_attempt_plot(test_case.greedy, starts = 17)
+                                       'greedy_bad', 9)
+    test_case.soln_attempt_plot(test_case.greedy)
+
+def test_greedy_2OPT_rep(r = 5):
+    '''tests the results for the greedy algorithm
+    repeats an arbitrary number of times. does not plot.'''
+    distances = ([2]*5+[5]*4)*r
+    fuels = ([5]*3+[2]*3+[3]*3)*r
+    OPT = 5
+    OPTsoln = Solution(([3]*3+[2]*3+[5]*3)*r,0)
+    test_case = Fuel_Placement_Problem(fuels, distances, OPT, OPTsoln,
+                                       'greedy_bad_rep', 9)
+    test_case.soln_attempt_plot(test_case.greedy)
     
 #random searches:
 
@@ -154,12 +165,13 @@ def main():
     #test_minover_max()
     #test_greedy_OPT()
     #test_greedy_fixed_2OPT()
-    #test_greedy_2OPT()
+    test_greedy_2OPT_rep(20)
     #search_max_min_UB()
     #search_minover_max_feas()
     #search_greedy_2OPT()
     #search_greedy_OPT()
     #search_greedy_fixed_OPT()
+
     pass
     
 if __name__ == '__main__':
