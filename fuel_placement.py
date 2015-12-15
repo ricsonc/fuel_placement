@@ -268,7 +268,8 @@ class Fuel_Placement_Problem:
         ratio = float('inf')
         attempt = alg(**kwargs)
         for soln in attempt.solns+attempt.fails:
-            ratio = min(ratio, max(self.fuel_levels(soln))/float(self.OPT))
+            ratio = min(ratio, ((lambda x: max(x)-min(x))
+                                (self.fuel_levels(soln)))/float(self.OPT))
         return ratio
         
     def plot_soln(self, soln, name = '', hbars = [-1,0,1,2,3], aspectr = 1,
@@ -352,7 +353,7 @@ class Fuel_Placement_Problem:
             print "drawn " + writeto
 
     def soln_attempt_plot(self, alg, scale = 1, verbose = True,
-                          annot = True, **kwargs):
+                          annot = False, **kwargs):
         '''plots the result of an algorithm which returns a Soln_Attempt'''
         attempt = alg(**kwargs)
         if attempt.success:
