@@ -130,7 +130,7 @@ def test_greedy_2OPT_rep(r = 5, do_plot = False):
     print test_case.approx_ratio(test_case.greedy)
     if do_plot:
         test_case.soln_attempt_plot(test_case.greedy)
-    
+
 #random searches:
 
 def search_max_min_UB():
@@ -166,13 +166,12 @@ def main():
     #test_minover_max()
     #test_greedy_OPT()
     #test_greedy_fixed_2OPT()
-    test_greedy_2OPT_rep(50, True)
+    #test_greedy_2OPT_rep(50, True)
     #search_max_min_UB()
     #search_minover_max_feas()
     #search_greedy_2OPT()
     #search_greedy_OPT()
     #search_greedy_fixed_OPT()
-
     pass
     
 if __name__ == '__main__':
