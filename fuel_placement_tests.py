@@ -128,7 +128,7 @@ def test_greedy_2OPT_rep(r = 5):
     OPTsoln = Solution(([3]*3+[2]*3+[5]*3)*r,0)
     test_case = Fuel_Placement_Problem(fuels, distances, OPT, OPTsoln,
                                        'greedy_bad_rep', 9)
-    test_case.soln_attempt_plot(test_case.greedy)
+    print test_case.approx_ratio(test_case.greedy)
     
 #random searches:
 

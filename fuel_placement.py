@@ -263,9 +263,13 @@ class Fuel_Placement_Problem:
 
     #I/O functions and analysis:
 
-    def approx_ratio(self, alg):
+    def approx_ratio(self, alg, **kwargs):
         '''computes the approximation ratio given an algorithm'''
-        pass
+        ratio = float('inf')
+        attempt = alg(**kwargs)
+        for soln in attempt.solns+attempt.fails:
+            ratio = min(ratio, max(self.fuel_levels(soln))/float(self.OPT))
+        return ratio
         
     def plot_soln(self, soln, name = '', hbars = [-1,0,1,2,3], aspectr = 1,
                   scale = 1, verbose = True, annotations = True):
