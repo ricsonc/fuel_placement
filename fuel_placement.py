@@ -95,26 +95,31 @@ class Fuel_Placement_Problem:
             current_fuel -= rot_distances[i]
             fuels.append(current_fuel)
         return fuels
+
+    def check_soln_general(self, soln, ratio, fuel_fn):
+        self.valid_soln(soln)
+        fuels = self.fuel_levels(soln)
+        return not(fuel_fn(fuels))
     
     def check_soln(self, soln, ratio):
         '''checks that at all times, the fuel in the tank is:
         1. above 0
         2. below ratio times opt'''
-        self.valid_soln(soln)
-        fuels = self.fuel_levels(soln)
-        if min(fuels) < 0 or max(fuels) > ratio*self.OPT:
-            return False
-        return True
+        fuel_fn = lambda fuels: min(fuels) < 0 or max(fuels) > ratio*self.OPT
+        return self.check_soln_general(soln, ratio, fuel_fn)
 
     def check_soln_UB(self, soln, ratio):
         '''checks that at all times, the fuel in tank is:
         1. below ratio times opt
         does not check for above 0'''
-        self.valid_soln(soln)
-        fuels = self.fuel_levels(soln)
-        if max(fuels) > ratio*self.OPT:
-            return False
-        return True
+        fuel_fn = lambda fuels: max(fuels) > ratio*self.OPT
+        return self.check_soln_general(soln, ratio, fuel_fn)
+
+    def check_soln_UBLB(self, soln, ratio):
+        '''check that the difference between the upper and lower bound is
+        less thn ratio times opt'''
+        fuel_fn = lambda fuels: (max(fuels)-min(fuels)) > ratio*self.OPT
+        return self.check_soln_general(soln, ratio, fuel_fn)
     
     def general_soln(self, ratio, soln_p, check_fn = None, lazy = True):
         '''
@@ -149,7 +154,8 @@ class Fuel_Placement_Problem:
         tank_order = []
         t_fuels = copy(self.fuels)
         for distance in rot_distances:
-            pick_tank = selection_fn(current_fuel, list(t_fuels.elements()))
+            pick_tank = selection_fn(current_fuel, list(t_fuels.elements()),
+                                     distance)
             t_fuels[pick_tank] -= 1
             tank_order.append(pick_tank)
             current_fuel += pick_tank
@@ -160,7 +166,7 @@ class Fuel_Placement_Problem:
     
     def greedy_p(self, start, ratio):
         '''the greedy algorithm applied to this instance at some start'''
-        def greedy_selection(current_fuel, tfuels):
+        def greedy_selection(current_fuel, tfuels, _):
             '''select the largest which does not exceed the bound'''
             smallest_tank = min(tfuels)
             tank_size = self.OPT*ratio
@@ -186,7 +192,7 @@ class Fuel_Placement_Problem:
 
     def max_min_p(self, start, ratio = 1):
         '''the max min algorithm applied to this instance at some start'''
-        def max_min_selection(current_fuel, tfuels):
+        def max_min_selection(current_fuel, tfuels, _):
             '''select the smallest tank if under or at OPT
             else select largest'''
             return min(tfuels) if current_fuel >= self.OPT else max(tfuels)
@@ -199,7 +205,7 @@ class Fuel_Placement_Problem:
 
     def max_min_p_gt(self, start, ratio = 1):
         '''max min gt algorithm applied to this instance at some start'''
-        def max_min_selection(current_fuel, tfuels):
+        def max_min_selection(current_fuel, tfuels, _):
             '''same as max_min_p, but inequality is exclusive'''
             return min(tfuels) if current_fuel > self.OPT else max(tfuels)
         return self.general_soln_p(start, max_min_selection)
@@ -211,7 +217,7 @@ class Fuel_Placement_Problem:
 
     def minover_min_p(self, start, ratio = 3):
         '''minover min algorithm applied to this instance at some start'''
-        def minover_min_selection(current_fuel, tfuels):
+        def minover_min_selection(current_fuel, tfuels, _):
             '''if the largest tank does not get us over W, pick it
             else, pick the smallest tank which gets us over W'''
             return (min(tfuels) if current_fuel >= self.OPT
@@ -226,6 +232,23 @@ class Fuel_Placement_Problem:
         variant of max_min algorithm'''
         return self.general_soln(ratio, self.minover_min_p, check_fn)
 
+    def min_next_p(self, start, ratio = 3):
+        '''min next algorithm'''
+        def min_next_selection(current_fuel, tfuels, dist):
+            '''min next algorithm:
+            pick the smallest fuel tank which gets to the next stop, 
+            or the largest tank if none will'''
+            return (max(tfuels) if max(tfuels)+current_fuel < dist
+                    else (min([fuel for fuel in tfuels
+                               if fuel+current_fuel >= dist])))
+        return self.general_soln_p(start, min_next_selection)
+
+    def min_next(self, ratio = 3, check_fn = None):
+        #check both upper and lower
+        '''min next algorithm'''
+        check_fn = check_fn if check_fn else self.check_soln_UBLB
+        return self.general_soln(ratio, self.min_next_p, check_fn)
+    
     def general_perm_follow(self, perm_soln):
         '''returns a solution attempt which follows the permutation solution'''
         #sort the tanks
