@@ -140,7 +140,10 @@ def test_min_next():
 
 def test_greedy_AOPT(do_plot = False):
     '''tests the results for the greedy algorithm,
-    attempts to cause an arbitrarily bad approximation'''
+    attempts to cause an arbitrarily bad approximation
+
+    greedy ends up succeeding on this case
+    '''
     r = 10
     e = 1
     k = 20
