@@ -61,6 +61,7 @@ def find_and_plot(algname, search_params, name = '', check_fn = ''):
     test_case = find_bad_case(algname, search_params, name, check_fn)
     test_case.soln_attempt_plot(getattr(test_case,algname), scale = .5)
     test_case.save()
+    return test_case
 
 ##tests:
 
@@ -148,10 +149,10 @@ def test_greedy_AOPT(do_plot = False):
     k = 20
     F = 1001
     A = 1000
-    distances = ([e]*(A+49)+[F]*2)*r
-    fuels = ([e]*A+[e+k]*50+[F])*r
+    distances = ([e]*(A+49)+[F]*11)*r
+    fuels = ([e]*A+[e+k]*50+[F]*10)*r
     OPT = F
-    OPTsoln = Solution(([e+k]*50+[e]*A+[F])*r,0)
+    OPTsoln = Solution(([e+k]*50+[e]*A+[F]*10)*r,0)
     test_case = Fuel_Placement_Problem(fuels, distances, OPT, OPTsoln,
                                        'greedy_aopt', A+51)
     print test_case.approx_ratio(test_case.greedy)

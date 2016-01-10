@@ -135,6 +135,7 @@ class Fuel_Placement_Problem:
         good_solns = []
         bad_solns = []
         for x in xrange(self.starts if self.starts else self.n):
+            print x
             soln = soln_p(x, ratio)
             if check_fn(soln, ratio):
                 good_solns.append(soln)
