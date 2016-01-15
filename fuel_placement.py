@@ -244,6 +244,37 @@ class Fuel_Placement_Problem:
                                if fuel+current_fuel >= dist])))
         return self.general_soln_p(start, min_next_selection)
 
+    def local_search(self, ratio = 1, solution = None):
+        '''takes a solution as input, or generates a random solution
+        uses a local search algorithm to improve solution until 
+        it is a ratio-approximate solution, or until a local optimum is reached'''
+        def cost(soln):
+            fuel_levels = self.fuel_levels(soln)
+            return max(fuel_levels)-min(fuel_levels)
+        if solution is None:
+            solution = Solution(list(self.fuels.elements()),0)
+        current_cost = cost(solution)
+        if current_cost < self.OPT*ratio:
+            return Soln_Attempt(True, [solution], [])
+        while True:
+            print 'iteration', current_cost
+            new_solutions = []
+            torder = solution.tank_order
+            for i, x in enumerate(torder):
+                for j, y in enumerate(torder):
+                    if i < j:
+                        norder = torder[:]
+                        norder[i], norder[j] = norder[j], norder[i]
+                        new_solution = Solution(norder, solution.start)
+                        if cost(new_solution) < current_cost:
+                            new_solutions.append(new_solution)
+            if not new_solutions:
+                return Soln_Attempt(False, [], [solution])
+            solution = min(new_solutions, key = lambda x: cost(x))
+            current_cost = cost(solution)
+            if current_cost < self.OPT*ratio:
+                return Soln_Attempt(True, [solution], [])
+        
     def min_next(self, ratio = 3, check_fn = None):
         #check both upper and lower
         '''min next algorithm'''
@@ -291,6 +322,7 @@ class Fuel_Placement_Problem:
         '''computes the approximation ratio given an algorithm'''
         ratio = float('inf')
         attempt = alg(**kwargs)
+        #attempt = alg(ratio = 4)
         for soln in attempt.solns+attempt.fails:
             ratio = min(ratio, ((lambda x: max(x)-min(x))
                                 (self.fuel_levels(soln)))/float(self.OPT))

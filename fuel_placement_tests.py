@@ -157,7 +157,40 @@ def test_greedy_AOPT(do_plot = False):
                                        'greedy_aopt', A+51)
     print test_case.approx_ratio(test_case.greedy)
     if do_plot:
-        test_case.soln_attempt_plot(test_case.greedy)
+        test_case.soln_attempt_plot(test_case.local_search)
+    return test_case
+
+def test_LS1(do_plot = False):
+    '''test local search
+    algorithm takes too long on this test run'''
+    r = 10
+    e = 1
+    k = 20
+    F = 1001
+    A = 1000
+    distances = ([e]*(A+49)+[F]*11)*r
+    fuels = ([e]*A+[e+k]*50+[F]*10)*r
+    OPT = F
+    OPTsoln = Solution(([e+k]*50+[e]*A+[F]*10)*r,0)
+    test_case = Fuel_Placement_Problem(fuels, distances, OPT, OPTsoln,
+                                       'LS1_test', A+51)
+    print test_case.approx_ratio(test_case.local_search)
+    if do_plot:
+        test_case.soln_attempt_plot(test_case.local_search)
+    return test_case
+
+def test_LS2(do_plot = True):
+    '''tests local search
+    local search gets 2OPT on this test case'''
+    distances = ([2]*5+[5]*4)*20
+    fuels = ([5]*3+[2]*3+[3]*3)*20
+    OPT = 5
+    OPTsoln = Solution(([3]*3+[2]*3+[5]*3)*20,0)
+    test_case = Fuel_Placement_Problem(fuels, distances, OPT, OPTsoln,
+                                       'LS2_test', 9)
+    print test_case.approx_ratio(test_case.local_search)
+    if do_plot:
+        test_case.soln_attempt_plot(test_case.local_search)
     return test_case
 
 #random searches:
@@ -202,6 +235,7 @@ def main():
     #search_greedy_2OPT()
     #search_greedy_OPT()
     #search_greedy_fixed_OPT()
+    test_LS2()
     pass
     
 if __name__ == '__main__':
