@@ -222,21 +222,7 @@ def search_greedy_fixed_OPT():
     find_and_plot('greedy_fixed', ((1,100),(2,5),[1,20,10]), 'greedy_fixed_opt')
     
 def main():
-    #uncomment an example below
-    #test_max_min_feas()
-    #test_max_min_gt_feas()
-    #test_greedy_OPT()
-    #test_greedy_fixed_2OPT()
-    #test_greedy_AOPT()
-    #test_minover_min()
-    #test_min_next()
-    #searcho_max_min_UB()
-    #search_minover_max_feas()
-    #search_greedy_2OPT()
-    #search_greedy_OPT()
-    #search_greedy_fixed_OPT()
     test_LS2()
-    pass
     
 if __name__ == '__main__':
     main()

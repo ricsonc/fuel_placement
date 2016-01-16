@@ -162,6 +162,59 @@ class Fuel_Placement_Problem:
             current_fuel -= distance
         return Solution(tank_order, start)
 
+    def general_local_search(self, potential_fn, neighbor_fn,
+                             ratio, solution, verbose = True):
+        '''runs local search given a potential_fn, a neighbor_fn, 
+        a ratio at which to stop, a starting solution'''
+        if solution is None:
+            solution = Solution(list(self.fuels.elements()),0)
+        current_cost = potential_fn(solution)
+        if current_cost < self.OPT*ratio:
+            return Soln_Attempt(True, [solution], [])
+        while True:
+            if verbose:
+                print 'iteration', current_cost
+            good_neighbors = [neighbor for neighbor in neighbor_fn(solution)
+                              if potential_fn(neighbor) < current_cost]
+            if not good_neighbors:
+                return Soln_Attempt(False, [], [solution])
+            solution = min(good_neighbors, key = lambda x: potential_fn(x))
+            current_cost = potential_fn(solution)
+            if current_cost < self.OPT*ratio:
+                return Soln_Attempt(True, [solution], [])
+
+    def swap_2_neighbors(self, solution):
+        '''returns all neighbors from a solution from swapping two fuels'''
+        neighbors = []
+        torder = solution.tank_order
+        for i, x in enumerate(torder):
+            for j, y in enumerate(torder):
+                if i < j:
+                    norder = torder[:]
+                    norder[i], norder[j] = norder[j], norder[i]
+                    neighbors.append(Solution(norder, solution.start))
+        return neighbors
+
+    def move_start_neighbors(self, solution):
+        '''returns all neighbors of a solution from moving the start point'''
+        neighbors = []
+        for i in xrange(self.n):
+            if i != solution.start:
+                neighbors.append(Solution(solution.tank_order[:], i))
+        return neighbors
+
+    def all_neighbors(self, solution):
+        '''returns all neighbors of a solution from
+        swapping 2 fuels or the start point'''
+        return (self.swap_2_neighbors(solution)+
+                self.move_start_neighbors(solution))
+
+    def positive_neighbors(self, solution):
+        '''returns the subset of all_neighbors(solution) which do not 
+        go below 0 fuel'''
+        return [soln for soln in self.all_neighbors(solution) 
+                if self.fuel_levels(soln) >= 0]
+
     #implementation of algorithms:
     
     def greedy_p(self, start, ratio):
@@ -243,76 +296,15 @@ class Fuel_Placement_Problem:
                                if fuel+current_fuel >= dist])))
         return self.general_soln_p(start, min_next_selection)
 
-    def general_local_search(self, potential_fn, neighbors_fn,
-                             ratio, solution, verbose = True):
-        '''runs local search given a potential_fn, a neighbor_fn, 
-        a ratio at which to stop, a starting solution'''
-        if solution is None:
-            solution = Solution(list(self.fuels.elements()),0)
-        current_cost = potential_fn(solution)
-        if current_cost < self.OPT*ratio:
-            return Soln_Attempt(True, [solution], [])
-        while True:
-            if verbose:
-                print 'iteration', current_cost
-            new_solutions = []
-            torder = solution.tank_order
-            for i, x in enumerate(torder):
-                for j, y in enumerate(torder):
-                    if i < j:
-                        norder = torder[:]
-                        norder[i], norder[j] = norder[j], norder[i]
-                        new_solution = Solution(norder, solution.start)
-                        if potential_fn(new_solution) < current_cost:
-                            new_solutions.append(new_solution)
-            if not new_solutions:
-                return Soln_Attempt(False, [], [solution])
-            solution = min(new_solutions, key = lambda x: cost(x))
-            current_cost = potential_fn(solution)
-            if current_cost < self.OPT*ratio:
-                return Soln_Attempt(True, [solution], [])
-
-    def swap_2_neighbors(self, solution):
-        '''returns all neighbors from a solution from swapping two fuels'''
-        neighbors = []
-        torder = solution.tank_order
-        for i, x in enumerate(torder):
-            for j, y in enumerate(torder):
-                if i < j:
-                    norder = torder[:]
-                    norder[i], norder[j] = norder[j], norder[i]
-                    neighbors.append(Solution(norder, solution.start))
-        return neighbors
-
-    def move_start_neighbors(self, solution):
-        '''returns all neighbors of a solution from moving the start point'''
-        neighbors = []
-        for i in xrange(self.n):
-            if i != solution.start:
-                neighbors.append(Solution(solution.tank_order[:], i))
-        return neighbors
-
-    def all_neighbors(self, solution):
-        '''returns all neighbors of a solution from
-        swapping 2 fuels or the start point'''
-        return (self.swap_2_neighbors(solution)+
-                self.move_start_neighbors(solution))
-
-    def positive_neighbors(self, solution):
-        '''returns the subset of all_neighbors(solution) which do not 
-        go below 0 fuel'''
-        return [soln for soln in self.all_neighbors(solution) 
-                if self.fuel_levels(soln) >= 0]
-
     def max_local_search(self, ratio = 1, solution = None):
         '''runs local search with standard cost function
         and swap_2_neighbors as the neighbor function'''
         def cost(soln):
             fuel_levels = self.fuel_levels(soln)
             return max(fuel_levels)-min(fuel_levels)
-        return general_local_search(cost, self.swap_2_neighbors, ratio, 
-                                    solution)
-
+        return self.general_local_search(cost, self.swap_2_neighbors, ratio, 
+                                         solution)
+    
     def softmax_center_local_search(self, ratio = 1, solution = None):
         '''runs local search with the softmax cost function 
         with all values mapped to abs(val-center)
@@ -321,8 +313,9 @@ class Fuel_Placement_Problem:
             fuel_levels = self.fuel_levels(soln)
             center = (max(fuel_levels)+min(fuel_levels))/2
             return log(sum((exp(abs(val-center)) for val in fuel_levels)))
-        return general_local_search(cost, self.swap_2_neighbors, ratio, solution)
-        
+        return self.general_local_search(cost, self.swap_2_neighbors, ratio, 
+                                         solution)
+    
     def softmax_abs_local_search(self, ratio = 1, solution = None):
         '''runs local search with the softmax cost function 
         with all values mapped to abs(val)
@@ -330,8 +323,8 @@ class Fuel_Placement_Problem:
         def cost(soln):
             fuel_levels = self.fuel_levels(soln)
             return log(sum((exp(abs(val)) for val in fuel_levels)))
-        return general_local_search(cost, self.all_neighbors, ratio, 
-                                    solution)
+        return self.general_local_search(cost, self.all_neighbors, ratio, 
+                                         solution)
 
     def softmax_positive_local_search(self, ratio = 1):
         '''runs local search with the softmax cost function 
@@ -342,8 +335,8 @@ class Fuel_Placement_Problem:
             fuel_levels = self.fuel_levels(soln)
             center = (max(fuel_levels)+min(fuel_levels))/2
             return log(sum((exp(val) for val in fuel_levels)))
-        return general_local_search(cost, self.positive_neighbors, ratio, 
-                                    solution)
+        return self.general_local_search(cost, self.positive_neighbors, ratio, 
+                                         solution)
 
     def min_next(self, ratio = 3, check_fn = None):
         #check both upper and lower
