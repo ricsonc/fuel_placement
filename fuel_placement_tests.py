@@ -174,9 +174,9 @@ def test_LS1(do_plot = False):
     OPTsoln = Solution(([e+k]*50+[e]*A+[F]*10)*r,0)
     test_case = Fuel_Placement_Problem(fuels, distances, OPT, OPTsoln,
                                        'LS1_test', A+51)
-    print test_case.approx_ratio(test_case.local_search)
+    print test_case.approx_ratio(test_case.max_local_search)
     if do_plot:
-        test_case.soln_attempt_plot(test_case.local_search)
+        test_case.soln_attempt_plot(test_case.max_local_search)
     return test_case
 
 def test_LS2(do_plot = True):
@@ -188,9 +188,9 @@ def test_LS2(do_plot = True):
     OPTsoln = Solution(([3]*3+[2]*3+[5]*3)*20,0)
     test_case = Fuel_Placement_Problem(fuels, distances, OPT, OPTsoln,
                                        'LS2_test', 9)
-    print test_case.approx_ratio(test_case.local_search)
+    print test_case.approx_ratio(test_case.max_local_search)
     if do_plot:
-        test_case.soln_attempt_plot(test_case.local_search)
+        test_case.soln_attempt_plot(test_case.max_local_search)
     return test_case
 
 #random searches:
