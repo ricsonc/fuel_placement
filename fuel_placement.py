@@ -162,10 +162,11 @@ class Fuel_Placement_Problem:
             current_fuel -= distance
         return Solution(tank_order, start)
 
-    def general_local_search(self, potential_fn, neighbor_fn,
+    def general_local_search(self, cost_fn, neighbor_fn,
                              ratio, solution, verbose = True):
         '''runs local search given a potential_fn, a neighbor_fn, 
         a ratio at which to stop, a starting solution'''
+        potential_fn = lambda solution: cost_fn(self.fuel_levels(solution))
         if solution is None:
             solution = Solution(list(self.fuels.elements()),0)
         current_cost = potential_fn(solution)
@@ -299,9 +300,20 @@ class Fuel_Placement_Problem:
     def max_local_search(self, ratio = 1, solution = None):
         '''runs local search with standard cost function
         and swap_2_neighbors as the neighbor function'''
-        def cost(soln):
-            fuel_levels = self.fuel_levels(soln)
+        def cost(fuel_levels):
             return max(fuel_levels)-min(fuel_levels)
+        return self.general_local_search(cost, self.swap_2_neighbors, ratio, 
+                                         solution)
+
+    def max2_local_search(self, ratio = 1, solution = None):
+        '''runs local search with max 2 cost function
+        and swap_2_neighbors as the neighbor function'''        
+        def cost(fuel_levels):
+            min_level = min(fuel_levels)
+            max_level = max(fuel_levels)
+            return (max_level-min_level+
+                    (fuel_levels.count(min_level)+
+                     fuel_levels.count(max_level))*1E-10)
         return self.general_local_search(cost, self.swap_2_neighbors, ratio, 
                                          solution)
     
@@ -309,8 +321,7 @@ class Fuel_Placement_Problem:
         '''runs local search with the softmax cost function 
         with all values mapped to abs(val-center)
         and the swap_2_neighbors as the neighbor function'''
-        def cost(soln):
-            fuel_levels = self.fuel_levels(soln)
+        def cost(fuel_levels):
             center = (max(fuel_levels)+min(fuel_levels))/2
             return log(sum((exp(abs(val-center)) for val in fuel_levels)))
         return self.general_local_search(cost, self.swap_2_neighbors, ratio, 
@@ -320,8 +331,7 @@ class Fuel_Placement_Problem:
         '''runs local search with the softmax cost function 
         with all values mapped to abs(val)
         and the all_neighbors as the neighbor function'''
-        def cost(soln):
-            fuel_levels = self.fuel_levels(soln)
+        def cost(fuel_levels):
             return log(sum((exp(abs(val)) for val in fuel_levels)))
         return self.general_local_search(cost, self.all_neighbors, ratio, 
                                          solution)
@@ -331,13 +341,22 @@ class Fuel_Placement_Problem:
         and the positive_neighbors as the neighbor function'''
         #construct positive solution
         solution = Solution()
-        def cost(soln):
-            fuel_levels = self.fuel_levels(soln)
+        def cost(fuel_levels):
             center = (max(fuel_levels)+min(fuel_levels))/2
             return log(sum((exp(val) for val in fuel_levels)))
         return self.general_local_search(cost, self.positive_neighbors, ratio, 
                                          solution)
 
+    def softmax_rotate_local_search(self, ratio = 1):
+        '''runs local search with softmax cost function
+        with values mapped to val-min(vals)
+        and swap_2_neighbors as the neighbor function'''
+        def cost(fuel_lvels):
+            min_level = min(fuel_levels)
+            return log(sum((exp(val-min_levels) for val in fuel_levels)))
+        return self.general_local_search(cost, self.swap_2_neighbors, ratio,
+                                         solution)
+    
     def min_next(self, ratio = 3, check_fn = None):
         #check both upper and lower
         '''min next algorithm'''

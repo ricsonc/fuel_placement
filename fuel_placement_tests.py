@@ -65,6 +65,34 @@ def find_and_plot(algname, search_params, name = '', check_fn = ''):
 
 ##tests:
 
+#random searches:
+
+def search_max_min_UB():
+    '''searches for and plots a case where
+    max_min goes over 3 times optimal'''
+    find_and_plot('max_min', ((5,50),(2,11),[1,20,10]), 'max_min_UB',
+                  'check_soln_UB')
+
+def search_minover_max_feas():
+    '''searches for and plots a case where
+    minover_max finds no solutions'''
+    find_and_plot('minover_min', ((5,50),(2,11),[1,2,10]), 'minover_min')
+    
+def search_greedy_2OPT():
+    '''searches for and plots a case where
+    greedy goes over 2 time optimal or fails'''
+    find_and_plot('greedy', ((5,50),(2,11),[1,20,10]), 'greedy_2OPT')
+
+def search_greedy_OPT():
+    '''searches for and plots a case where
+    greedy gives a nonoptimal solution'''
+    find_and_plot('greedy', ((5,50),(2,11),[1,20,10]), 'greedy_OPT')
+
+def search_greedy_fixed_OPT():
+    '''searches for and plots a case where greedy 
+    gives a nonoptimal solution starting at p_0'''
+    find_and_plot('greedy_fixed', ((1,100),(2,5),[1,20,10]), 'greedy_fixed_opt')
+
 #specific instances:
 
 def test_max_min_feas():
@@ -160,69 +188,25 @@ def test_greedy_AOPT(do_plot = False):
         test_case.soln_attempt_plot(test_case.local_search)
     return test_case
 
-def test_LS1(do_plot = False):
-    '''test local search
-    algorithm takes too long on this test run'''
-    r = 10
-    e = 1
-    k = 20
-    F = 1001
-    A = 1000
-    distances = ([e]*(A+49)+[F]*11)*r
-    fuels = ([e]*A+[e+k]*50+[F]*10)*r
-    OPT = F
-    OPTsoln = Solution(([e+k]*50+[e]*A+[F]*10)*r,0)
-    test_case = Fuel_Placement_Problem(fuels, distances, OPT, OPTsoln,
-                                       'LS1_test', A+51)
-    print test_case.approx_ratio(test_case.max_local_search)
-    if do_plot:
-        test_case.soln_attempt_plot(test_case.max_local_search)
-    return test_case
-
-def test_LS2(do_plot = True):
+def bad_LS(do_plot = True):
     '''tests local search
     local search gets 2OPT on this test case'''
-    distances = ([2]*5+[5]*4)*20
-    fuels = ([5]*3+[2]*3+[3]*3)*20
+    r0 = 10 #let this be even!
+    r1 = 3
+    distances = ([3]*r0+[1]*r0+[3]*r0)*r1
+    fuels = ([1]*2*r0+[5]*r0)*r1
     OPT = 5
-    OPTsoln = Solution(([3]*3+[2]*3+[5]*3)*20,0)
+    OPTsoln = Solution(([5,1]*r0/2+[1]*r0+[5,1]*r0/2)*r1,0)
     test_case = Fuel_Placement_Problem(fuels, distances, OPT, OPTsoln,
-                                       'LS2_test', 9)
+                                       'LS_test', r0*3)
     print test_case.approx_ratio(test_case.max_local_search)
     if do_plot:
         test_case.soln_attempt_plot(test_case.max_local_search)
     return test_case
 
-#random searches:
 
-def search_max_min_UB():
-    '''searches for and plots a case where
-    max_min goes over 3 times optimal'''
-    find_and_plot('max_min', ((5,50),(2,11),[1,20,10]), 'max_min_UB',
-                  'check_soln_UB')
-
-def search_minover_max_feas():
-    '''searches for and plots a case where
-    minover_max finds no solutions'''
-    find_and_plot('minover_min', ((5,50),(2,11),[1,2,10]), 'minover_min')
-    
-def search_greedy_2OPT():
-    '''searches for and plots a case where
-    greedy goes over 2 time optimal or fails'''
-    find_and_plot('greedy', ((5,50),(2,11),[1,20,10]), 'greedy_2OPT')
-
-def search_greedy_OPT():
-    '''searches for and plots a case where
-    greedy gives a nonoptimal solution'''
-    find_and_plot('greedy', ((5,50),(2,11),[1,20,10]), 'greedy_OPT')
-
-def search_greedy_fixed_OPT():
-    '''searches for and plots a case where greedy 
-    gives a nonoptimal solution starting at p_0'''
-    find_and_plot('greedy_fixed', ((1,100),(2,5),[1,20,10]), 'greedy_fixed_opt')
-    
 def main():
-    test_LS2()
+    bad_LS()
     
 if __name__ == '__main__':
     main()
