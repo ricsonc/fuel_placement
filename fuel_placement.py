@@ -172,7 +172,10 @@ class Fuel_Placement_Problem:
         current_cost = potential_fn(solution)
         if current_cost < self.OPT*ratio:
             return Soln_Attempt(True, [solution], [])
+        i = 0
         while True:
+            self.plot_soln(solution, 'debug/'+str(i))
+            i+=1
             if verbose:
                 print 'iteration', current_cost
             good_neighbors = [neighbor for neighbor in neighbor_fn(solution)
@@ -182,6 +185,7 @@ class Fuel_Placement_Problem:
             solution = min(good_neighbors, key = lambda x: potential_fn(x))
             current_cost = potential_fn(solution)
             if current_cost < self.OPT*ratio:
+                self.plot_soln(solution, 'debug/'+str(i))
                 return Soln_Attempt(True, [solution], [])
 
     def swap_2_neighbors(self, solution):
@@ -305,7 +309,7 @@ class Fuel_Placement_Problem:
         return self.general_local_search(cost, self.swap_2_neighbors, ratio, 
                                          solution)
 
-    def max2_local_search(self, ratio = 1, solution = None):
+    def max2_local_search(self, ratio = 1.0001, solution = None):
         '''runs local search with max 2 cost function
         and swap_2_neighbors as the neighbor function'''        
         def cost(fuel_levels):
@@ -404,14 +408,13 @@ class Fuel_Placement_Problem:
         '''computes the approximation ratio given an algorithm'''
         ratio = float('inf')
         attempt = alg(**kwargs)
-        #attempt = alg(ratio = 4)
         for soln in attempt.solns+attempt.fails:
             ratio = min(ratio, ((lambda x: max(x)-min(x))
                                 (self.fuel_levels(soln)))/float(self.OPT))
         return ratio
         
     def plot_soln(self, soln, name = '', hbars = [-1,0,1,2,3], aspectr = 1,
-                  scale = 1, verbose = True, annotations = True):
+                  scale = 1, verbose = True, annotations = False):
         '''plots a Solution:
         name is optional
         hbars are horizontal bars plotted at certain multiples of OPT
@@ -428,7 +431,7 @@ class Fuel_Placement_Problem:
         #compute font size and line thickness etc
         fontsize = scale*1000./self.L
         width = scale*100./self.L
-        margin = scale*100./self.OPT
+        margin = scale*1.*self.OPT
         dpi = scale*2*self.L
         
         rcp['font.size'] = fontsize

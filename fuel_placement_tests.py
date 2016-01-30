@@ -189,24 +189,59 @@ def test_greedy_AOPT(do_plot = False):
     return test_case
 
 def bad_LS(do_plot = True):
-    '''tests local search
+    '''tests local search max
     local search gets 2OPT on this test case'''
-    r0 = 10 #let this be even!
+    r0 = 10 #let this be even
     r1 = 3
     distances = ([3]*r0+[1]*r0+[3]*r0)*r1
     fuels = ([1]*2*r0+[5]*r0)*r1
     OPT = 5
-    OPTsoln = Solution(([5,1]*r0/2+[1]*r0+[5,1]*r0/2)*r1,0)
+    OPTsoln = Solution(([5,1]*(r0/2)+[1]*r0+[5,1]*(r0/2))*r1,0)
     test_case = Fuel_Placement_Problem(fuels, distances, OPT, OPTsoln,
                                        'LS_test', r0*3)
-    print test_case.approx_ratio(test_case.max_local_search)
+    bad_start = Solution(([1]*r0+[5]*r0+[1]*r0)*3, 0)
+    kwargs = {'solution':bad_start}
+    print test_case.approx_ratio(test_case.max_local_search, **kwargs)
     if do_plot:
-        test_case.soln_attempt_plot(test_case.max_local_search)
+        test_case.soln_attempt_plot(test_case.max_local_search, **kwargs)
     return test_case
 
+def bad_LS2(do_plot = True):
+    '''tests local search max 2
+    local search gets 2OPT on this test case'''
+    r0 = 10 #let this be even
+    r1 = 3
+    distances = ([3]*r0+[1]*r0+[3]*r0)*r1
+    fuels = ([1]*2*r0+[5]*r0)*r1
+    OPT = 5
+    OPTsoln = Solution(([5,1]*(r0/2)+[1]*r0+[5,1]*(r0/2))*r1,0)
+    test_case = Fuel_Placement_Problem(fuels, distances, OPT, OPTsoln,
+                                       'LS_test', r0*3)
+    bad_start = Solution(([1]*r0+[5]*r0+[1]*r0)*3, 0)
+    kwargs = {'solution':bad_start}
+    print test_case.approx_ratio(test_case.max2_local_search, **kwargs)
+    if do_plot:
+        test_case.soln_attempt_plot(test_case.max2_local_search, **kwargs)
+    return test_case
+
+def bad_LS3(do_plot = True):
+    '''tests local search max2'''
+    n = 4
+    unit = 5
+    distances = [0]*n+[2*unit]*n+[unit]*2*n
+    fuels = [unit]*2*n+[2*unit,0]*n
+    OPT = 2*unit
+    OPTsoln = Solution(distances,0)
+    test_case = Fuel_Placement_Problem(fuels, distances, OPT, OPTsoln,
+                                       'LS_test3', 4*n)
+    kwargs = {'solution':Solution(fuels, 0)}
+    print test_case.approx_ratio(test_case.max2_local_search, **kwargs)
+    if do_plot:
+        test_case.soln_attempt_plot(test_case.max2_local_search, **kwargs)
+    return test_case
 
 def main():
-    bad_LS()
+    bad_LS3()
     
 if __name__ == '__main__':
     main()
