@@ -240,8 +240,45 @@ def bad_LS3(do_plot = True):
         test_case.soln_attempt_plot(test_case.max2_local_search, **kwargs)
     return test_case
 
+def bad_LS4(do_plot = True):
+    '''tests local search max2
+    local search fails on this!'''
+    n = 12
+    unit = 5
+    distances = [0]*n+[2*unit]*n+[unit]*4*n+[0]*n+[2*unit]*n
+    fuels = [unit]*2*n+[2*unit,0]*2*n+[unit]*2*n
+    OPT = 2*unit
+    OPTsoln = Solution(distances,0)
+    test_case = Fuel_Placement_Problem(fuels, distances, OPT, OPTsoln,
+                                       'LS_test4', 8*n)
+    kwargs = {'solution':Solution(fuels, 0)}
+    print test_case.approx_ratio(test_case.max2_local_search, **kwargs)
+    if do_plot:
+        test_case.soln_attempt_plot(test_case.max2_local_search, **kwargs)
+    return test_case
+
+def LS4_test(do_plot = True):
+    '''tests local search algorithms
+    softmax rotate fails
+    softmax_center gets 2 OPT
+    softmax abs gets 2.5 OPT
+    '''
+    n = 12
+    unit = 5
+    distances = [0]*n+[2*unit]*n+[unit]*4*n+[0]*n+[2*unit]*n
+    fuels = [unit]*2*n+[2*unit,0]*2*n+[unit]*2*n
+    OPT = 2*unit
+    OPTsoln = Solution(distances,0)
+    test_case = Fuel_Placement_Problem(fuels, distances, OPT, OPTsoln,
+                                       'LS4', 8*n)
+    kwargs = {'solution':Solution(fuels, 0)}
+    print test_case.approx_ratio(test_case.softmax_abs_local_search, **kwargs)
+    if do_plot:
+        test_case.soln_attempt_plot(test_case.softmax_abs_local_search, **kwargs)
+    return test_case
+
 def main():
-    bad_LS3()
+    LS4_test()
     
 if __name__ == '__main__':
     main()

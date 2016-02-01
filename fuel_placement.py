@@ -174,7 +174,7 @@ class Fuel_Placement_Problem:
             return Soln_Attempt(True, [solution], [])
         i = 0
         while True:
-            self.plot_soln(solution, 'debug/'+str(i))
+            #self.plot_soln(solution, 'debug/'+str(i))
             i+=1
             if verbose:
                 print 'iteration', current_cost
@@ -185,7 +185,7 @@ class Fuel_Placement_Problem:
             solution = min(good_neighbors, key = lambda x: potential_fn(x))
             current_cost = potential_fn(solution)
             if current_cost < self.OPT*ratio:
-                self.plot_soln(solution, 'debug/'+str(i))
+                #self.plot_soln(solution, 'debug/'+str(i))
                 return Soln_Attempt(True, [solution], [])
 
     def swap_2_neighbors(self, solution):
@@ -344,20 +344,20 @@ class Fuel_Placement_Problem:
         '''runs local search with the softmax cost function 
         and the positive_neighbors as the neighbor function'''
         #construct positive solution
-        solution = Solution()
+        solution = Solution() 
         def cost(fuel_levels):
             center = (max(fuel_levels)+min(fuel_levels))/2
             return log(sum((exp(val) for val in fuel_levels)))
         return self.general_local_search(cost, self.positive_neighbors, ratio, 
                                          solution)
 
-    def softmax_rotate_local_search(self, ratio = 1):
+    def softmax_rotate_local_search(self, ratio = 1, solution = None):
         '''runs local search with softmax cost function
         with values mapped to val-min(vals)
         and swap_2_neighbors as the neighbor function'''
-        def cost(fuel_lvels):
+        def cost(fuel_levels):
             min_level = min(fuel_levels)
-            return log(sum((exp(val-min_levels) for val in fuel_levels)))
+            return log(sum((exp(val-min_level) for val in fuel_levels)))
         return self.general_local_search(cost, self.swap_2_neighbors, ratio,
                                          solution)
     
