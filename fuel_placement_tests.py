@@ -260,7 +260,7 @@ def bad_LS4(do_plot = True):
 def LS4_test(do_plot = True):
     '''tests local search algorithms
     softmax rotate fails
-    softmax_center gets 2 OPT
+    softmax center gets 2 OPT
     softmax abs gets 2.5 OPT
     '''
     n = 12
