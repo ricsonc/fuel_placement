@@ -1,6 +1,6 @@
 from itertools import chain
 from collections import Counter, namedtuple
-from itertools import permutations
+from itertools import permutations, combinations
 from copy import copy
 from random import choice, randint
 from os import path, makedirs
@@ -174,7 +174,7 @@ class Fuel_Placement_Problem:
             return Soln_Attempt(True, [solution], [])
         i = 0
         while True:
-            #self.plot_soln(solution, 'debug/'+str(i))
+            self.plot_soln(solution, 'debug/'+str(i)) ###
             i+=1
             if verbose:
                 print 'iteration', current_cost
@@ -185,7 +185,7 @@ class Fuel_Placement_Problem:
             solution = min(good_neighbors, key = lambda x: potential_fn(x))
             current_cost = potential_fn(solution)
             if current_cost < self.OPT*ratio:
-                #self.plot_soln(solution, 'debug/'+str(i))
+                self.plot_soln(solution, 'debug/'+str(i)) ###
                 return Soln_Attempt(True, [solution], [])
 
     def swap_2_neighbors(self, solution):
@@ -219,6 +219,15 @@ class Fuel_Placement_Problem:
         go below 0 fuel'''
         return [soln for soln in self.all_neighbors(solution) 
                 if self.fuel_levels(soln) >= 0]
+
+    def double_swap_neighbors(self, solution):
+        neighbors = []
+        for (a1,a2,b2,b1) in combinations(range(self.n),4):
+            norder = solution.tank_order[:]
+            norder[a1],norder[b1] = norder[b1],norder[a1]
+            norder[a2],norder[b2] = norder[b2],norder[a2]
+            neighbors.append(Solution(norder, solution.start))
+        return neighbors
 
     #implementation of algorithms:
     
@@ -361,6 +370,18 @@ class Fuel_Placement_Problem:
         return self.general_local_search(cost, self.swap_2_neighbors, ratio,
                                          solution)
     
+    def doubleswap_max2_local_search(self, ratio = 1.0001, solution = None):
+        '''runs local search with max 2 cost function
+        and double_swap_neighbors as the neighbor function'''        
+        def cost(fuel_levels):
+            min_level = min(fuel_levels)
+            max_level = max(fuel_levels)
+            return (max_level-min_level+
+                    (fuel_levels.count(min_level)+
+                     fuel_levels.count(max_level))*1E-10)
+        return self.general_local_search(cost, self.double_swap_neighbors, ratio, 
+                                         solution)
+
     def min_next(self, ratio = 3, check_fn = None):
         #check both upper and lower
         '''min next algorithm'''
