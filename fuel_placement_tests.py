@@ -263,19 +263,37 @@ def LS4_test(do_plot = True):
     softmax center gets 2 OPT
     softmax abs gets 2.5 OPT
     '''
-    #n = 12
-    n = 6
+    n = 4
     unit = 5
-    distances = [0]*n+[2*unit]*n+[unit]*4*n+[0]*n+[2*unit]*n
-    fuels = [unit]*2*n+[2*unit,0]*2*n+[unit]*2*n
+    r = 2
+    distances = ([0]*n+[2*unit]*n)*r+[unit]*2*n*r
+    fuels = [unit]*2*n*r+[2*unit,0]*n*r
     OPT = 2*unit
     OPTsoln = Solution(distances,0)
     test_case = Fuel_Placement_Problem(fuels, distances, OPT, OPTsoln,
-                                       'LS4', 8*n)
+                                       'LS4', 4*n)
     kwargs = {'solution':Solution(fuels, 0)}
-    print test_case.approx_ratio(test_case.doubleswap_max2_local_search, **kwargs)
+    alg = test_case.doubleswap_max2_local_search
+    #alg = test_case.max2_local_search
+    print test_case.approx_ratio(alg, **kwargs)
     if do_plot:
-        test_case.soln_attempt_plot(test_case.doubleswap_max2_local_search, **kwargs)
+        test_case.soln_attempt_plot(alg, **kwargs)
+    return test_case
+
+def LS5_test(do_plot = True):
+    n = 6
+    unit = 5
+    r = 2
+    distances = ([0]*n+[2*unit]*n+[unit]*2*n)*r
+    fuels = ([unit]*2*n+[2*unit,0]*n)*r
+    OPT = 2*unit
+    OPTsoln = Solution(distances,0)
+    test_case = Fuel_Placement_Problem(fuels, distances, OPT, OPTsoln,
+                                       'LS5', 8*n)
+    kwargs = {'solution':Solution(fuels, 0)}
+    print test_case.approx_ratio(test_case.max2_local_search, **kwargs)
+    if do_plot:
+        test_case.soln_attempt_plot(test_case.max2_local_search, **kwargs)
     return test_case
 
 def main():

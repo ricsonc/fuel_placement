@@ -173,8 +173,10 @@ class Fuel_Placement_Problem:
         if current_cost < self.OPT*ratio:
             return Soln_Attempt(True, [solution], [])
         i = 0
+        print solution.tank_order ###
         while True:
             self.plot_soln(solution, 'debug/'+str(i)) ###
+            print solution.tank_order ###
             i+=1
             if verbose:
                 print 'iteration', current_cost
@@ -186,6 +188,7 @@ class Fuel_Placement_Problem:
             current_cost = potential_fn(solution)
             if current_cost < self.OPT*ratio:
                 self.plot_soln(solution, 'debug/'+str(i)) ###
+                print solution.tank_order ###
                 return Soln_Attempt(True, [solution], [])
 
     def swap_2_neighbors(self, solution):
@@ -224,9 +227,11 @@ class Fuel_Placement_Problem:
         neighbors = []
         for (a1,a2,b2,b1) in combinations(range(self.n),4):
             norder = solution.tank_order[:]
-            norder[a1],norder[b1] = norder[b1],norder[a1]
-            norder[a2],norder[b2] = norder[b2],norder[a2]
-            neighbors.append(Solution(norder, solution.start))
+            #if norder[a1] != norder[b1] and norder[a2] != norder[b2]:
+            if norder[a1] != norder[b1] or norder[a2] != norder[b2]:            
+                norder[a1],norder[b1] = norder[b1],norder[a1]
+                norder[a2],norder[b2] = norder[b2],norder[a2]
+                neighbors.append(Solution(norder, solution.start))
         return neighbors
 
     #implementation of algorithms:
