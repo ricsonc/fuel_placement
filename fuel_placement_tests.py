@@ -188,6 +188,16 @@ def test_greedy_AOPT(do_plot = False):
         test_case.soln_attempt_plot(test_case.local_search)
     return test_case
 
+def LS_test_case(n, unit, r, name):
+    '''returns a test case and a candidate solution'''
+    distances = ([0]*n+[2*unit]*n+[unit]*2*n)*r
+    fuels = ([unit]*2*n+[2*unit,0]*n)*r
+    OPT = 2*unit
+    OPTsoln = Solution(distances,0)
+    test_case = Fuel_Placement_Problem(fuels, distances, OPT, OPTsoln,
+                                       name, r*4*n)
+    return test_case, Solution(fuels,0)
+
 def bad_LS(do_plot = True):
     '''tests local search max
     local search gets 2OPT on this test case'''
@@ -273,7 +283,7 @@ def LS4_test(do_plot = True):
     test_case = Fuel_Placement_Problem(fuels, distances, OPT, OPTsoln,
                                        'LS4', 4*n)
     kwargs = {'solution':Solution(fuels, 0)}
-    alg = test_case.doubleswap_max2_local_search
+    alg = test_case.doubleswap_max2_LS
     #alg = test_case.max2_local_search
     print test_case.approx_ratio(alg, **kwargs)
     if do_plot:
@@ -296,8 +306,19 @@ def LS5_test(do_plot = True):
         test_case.soln_attempt_plot(test_case.max2_local_search, **kwargs)
     return test_case
 
+def LS_doubleswap_tests():
+    '''test how well doubleswap does'''
+    test_casey, soln = LS_test_case(6, 5, 2, 'doubleswap_tests')
+    kwargs = {'solution':soln}
+    for alg in [test_case.doubleswap_max2_LS,
+                test_case.doubleswap_softmax_rotate_LS,
+                test_case.doubleswap_softmax_center_LS,
+                test_case.doubleswap_softmax_abs_LS,
+                test_case.doubleswap_softmax_positive_LS]:
+        test_case.soln_attempt_plot(alg, **kwargs)
+
 def main():
-    LS4_test()
+    LS_doubleswap_tests()
     
 if __name__ == '__main__':
     main()
