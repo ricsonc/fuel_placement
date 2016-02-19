@@ -308,13 +308,13 @@ def LS5_test(do_plot = True):
 
 def LS_doubleswap_tests():
     '''test how well doubleswap does'''
-    test_casey, soln = LS_test_case(6, 5, 2, 'doubleswap_tests')
+    test_case, soln = LS_test_case(10, 5, 2, 'doubleswap_tests')
     kwargs = {'solution':soln}
-    for alg in [test_case.doubleswap_max2_LS,
-                test_case.doubleswap_softmax_rotate_LS,
+    for alg in [test_case.doubleswap_softmax_positive_LS,
                 test_case.doubleswap_softmax_center_LS,
                 test_case.doubleswap_softmax_abs_LS,
-                test_case.doubleswap_softmax_positive_LS]:
+                test_case.doubleswap_softmax_rotate_LS,
+                test_case.doubleswap_max2_LS]:
         test_case.soln_attempt_plot(alg, **kwargs)
 
 def main():

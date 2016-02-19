@@ -36,7 +36,7 @@ def preparedir(file):
         makedirs(directory)
 
 def softmax(X, base, OPT):
-    return sum((base**(x/OPT) for x in X))
+    return sum((base**(float(x)/OPT) for x in X))
 
 #class definitions:
 
@@ -176,10 +176,10 @@ class Fuel_Placement_Problem:
         if current_cost < self.OPT*ratio:
             return Soln_Attempt(True, [solution], [])
         i = 0
-        print solution.tank_order ###
+        #print solution.tank_order ###
         while True:
-            self.plot_soln(solution, 'debug/'+str(i)) ###
-            print solution.tank_order ###
+            #self.plot_soln(solution, 'debug/'+str(i)) ###
+            #print solution.tank_order ###
             i+=1
             if verbose:
                 print 'iteration', current_cost
@@ -190,8 +190,8 @@ class Fuel_Placement_Problem:
             solution = min(good_neighbors, key = lambda x: potential_fn(x))
             current_cost = potential_fn(solution)
             if current_cost < self.OPT*ratio:
-                self.plot_soln(solution, 'debug/'+str(i)) ###
-                print solution.tank_order ###
+                #self.plot_soln(solution, 'debug/'+str(i)) ###
+                #print solution.tank_order ###
                 return Soln_Attempt(True, [solution], [])
 
     def swap_2_neighbors(self, solution):
@@ -239,7 +239,7 @@ class Fuel_Placement_Problem:
 
     def double_swap_positive_neighbors(self, solution):
         return [soln for soln in self.double_swap_neighbors(solution)
-                if self.fuel_levels(soln) >= 0]
+                if all(f >= 0 for f in self.fuel_levels(soln))]
     
     #implementation of algorithms:
     
@@ -395,14 +395,14 @@ class Fuel_Placement_Problem:
         return self.general_local_search(cost, self.double_swap_neighbors, ratio, 
                                          solution)
 
-    def doubleswap_softmax_rotate_LS(self, ratio = 1.0001, solution = None):
+    def doubleswap_softmax_rotate_LS(self, base = 2, ratio = 1.0001, solution = None):
         def cost(fuel_levels):
             return softmax([val-min(fuel_levels) for val in fuel_levels],
                            base, self.OPT)
         return self.general_local_search(cost, self.double_swap_neighbors, ratio,
                                          solution)
 
-    def doubleswap_softmax_center_LS(self, ratio = 1.0001, solution = None):
+    def doubleswap_softmax_center_LS(self, base = 2, ratio = 1.0001, solution = None):
         def cost(fuel_levels):
             center = (min(fuel_levels)+max(fuel_levels))/2.
             return softmax([abs(val-center) for val in fuel_levels],
@@ -410,13 +410,13 @@ class Fuel_Placement_Problem:
         return self.general_local_search(cost, self.double_swap_neighbors, ratio,
                                          solution)
 
-    def doubleswap_softmax_abs_LS(self, ratio = 1.0001, solution = None):
+    def doubleswap_softmax_abs_LS(self, base = 2, ratio = 1.0001, solution = None):
         def cost(fuel_levels):
             return softmax([abs(val) for val in fuel_levels], base, self.OPT)
         return self.general_local_search(cost, self.double_swap_neighbors, ratio,
                                          solution)
 
-    def doubleswap_softmax_positive_LS(self, ratio = 1.0001, solution = None):
+    def doubleswap_softmax_positive_LS(self, base = 2, ratio = 1.0001, solution = None):
         def cost(fuel_levels):
             return softmax(fuel_levels, base, self.OPT)
         return self.general_local_search(cost, self.double_swap_positive_neighbors,
