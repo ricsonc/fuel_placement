@@ -166,7 +166,7 @@ class Fuel_Placement_Problem:
         return Solution(tank_order, start)
 
     def general_local_search(self, cost_fn, neighbor_fn,
-                             ratio, solution, verbose = True):
+                             ratio, solution, verbose = True, debug = True):
         '''runs local search given a potential_fn, a neighbor_fn, 
         a ratio at which to stop, a starting solution'''
         potential_fn = lambda solution: cost_fn(self.fuel_levels(solution))
@@ -176,13 +176,12 @@ class Fuel_Placement_Problem:
         if current_cost < self.OPT*ratio:
             return Soln_Attempt(True, [solution], [])
         i = 0
-        #print solution.tank_order ###
         while True:
-            #self.plot_soln(solution, 'debug/'+str(i)) ###
-            #print solution.tank_order ###
+            if debug:
+                self.plot_soln(solution, 'debug/'+str(i)) ###
             i+=1
             if verbose:
-                print 'iteration', current_cost
+                print 'iteration', current_cost, current_cost/self.OPT
             good_neighbors = [neighbor for neighbor in neighbor_fn(solution)
                               if potential_fn(neighbor) < current_cost]
             if not good_neighbors:
@@ -190,8 +189,8 @@ class Fuel_Placement_Problem:
             solution = min(good_neighbors, key = lambda x: potential_fn(x))
             current_cost = potential_fn(solution)
             if current_cost < self.OPT*ratio:
-                #self.plot_soln(solution, 'debug/'+str(i)) ###
-                #print solution.tank_order ###
+                if debug:
+                    self.plot_soln(solution, 'debug/'+str(i)) ###
                 return Soln_Attempt(True, [solution], [])
 
     def swap_2_neighbors(self, solution):
@@ -338,7 +337,7 @@ class Fuel_Placement_Problem:
             max_level = max(fuel_levels)
             return (max_level-min_level+
                     (fuel_levels.count(min_level)+
-                     fuel_levels.count(max_level))*1E-10)
+                     fuel_levels.count(max_level))*1E-6)
         return self.general_local_search(cost, self.swap_2_neighbors, ratio, 
                                          solution)
     

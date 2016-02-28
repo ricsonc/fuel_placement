@@ -188,14 +188,14 @@ def test_greedy_AOPT(do_plot = False):
         test_case.soln_attempt_plot(test_case.local_search)
     return test_case
 
-def LS_test_case(n, unit, r, name):
+def LS_test_case(n, unit, full, r, name):
     '''returns a test case and a candidate solution'''
-    distances = ([0]*n+[2*unit]*n+[unit]*2*n)*r
-    fuels = ([unit]*2*n+[2*unit,0]*n)*r
-    OPT = 2*unit
+    distances = ([0]*(full-1)*n+[full*unit]*n+[unit]*full*n)*r
+    fuels = ([unit]*full*n+([full*unit]+[0]*(full-1))*n)*r
+    OPT = full*unit
     OPTsoln = Solution(distances,0)
     test_case = Fuel_Placement_Problem(fuels, distances, OPT, OPTsoln,
-                                       name, r*4*n)
+                                       name, r*2*full*n)
     return test_case, Solution(fuels,0)
 
 def bad_LS(do_plot = True):
@@ -308,7 +308,7 @@ def LS5_test(do_plot = True):
 
 def LS_doubleswap_tests():
     '''test how well doubleswap does'''
-    test_case, soln = LS_test_case(10, 5, 2, 'doubleswap_tests')
+    test_case, soln = LS_test_case(8, 5, 2, 2, 'doubleswap_tests')
     kwargs = {'solution':soln}
     for alg in [test_case.doubleswap_softmax_positive_LS,
                 test_case.doubleswap_softmax_center_LS,
@@ -317,8 +317,26 @@ def LS_doubleswap_tests():
                 test_case.doubleswap_max2_LS]:
         test_case.soln_attempt_plot(alg, **kwargs)
 
+def LS_test_max2():
+    test_case, soln = LS_test_case(6, 5, 2, 2, 'max2_tests')
+    test_case.soln_attempt_plot(test_case.max2_local_search,
+                                **{'solution':soln})
+
+def LS_test_max2_2():
+    n = 2
+    r = 2
+    unit = 2
+    distances = ([0]*3*n+[5*unit]*2*n+[2*unit]*5*n)*r
+    fuels = ([2*unit]*5*n+[5*unit,0,5*unit,0,0]*n)*r
+    OPT = 5*unit
+    OPTsoln = Solution(distances,0)
+    test_case = Fuel_Placement_Problem(fuels, distances, OPT, OPTsoln,
+                                       'max2_tests_2', len(distances)/r)
+    test_case.soln_attempt_plot(test_case.max2_local_search,
+                                **{'solution':Solution(fuels,0)})
+
 def main():
-    LS_doubleswap_tests()
+    LS_test_max2_2()
     
 if __name__ == '__main__':
     main()
