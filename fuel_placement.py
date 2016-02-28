@@ -421,6 +421,25 @@ class Fuel_Placement_Problem:
         return self.general_local_search(cost, self.double_swap_positive_neighbors,
                                          ratio, solution)
     
+    def insertion_fuel_distance(self):
+        pass
+        #some sort of candidate
+
+    def insertion_fuel(self):
+        pass
+
+    def insertion_swap_fuel_distance(self):
+        pass
+
+    def insertion_swap_fuel(self):
+        pass
+
+    def insertion_shift_fuel_distance(self):
+        pass
+
+    def insertion_shift_fuel(self):
+        pass
+
     def min_next(self, ratio = 3, check_fn = None):
         #check both upper and lower
         '''min next algorithm'''

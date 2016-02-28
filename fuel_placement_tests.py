@@ -335,6 +335,8 @@ def LS_test_max2_2():
     test_case.soln_attempt_plot(test_case.max2_local_search,
                                 **{'solution':Solution(fuels,0)})
 
+
+
 def main():
     LS_test_max2_2()
     
