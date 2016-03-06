@@ -40,6 +40,15 @@ def softmax(X, base, OPT):
 
 #class definitions:
 
+class Partial(namedtuple("Partial",['fuelss', 'distancess', 
+                                    'base', 'fragments', 'adder'])):
+    '''
+    Partial contains the ingredients needed to construct a series of 
+    incomplete fuel placement problems. this series starts with the base
+    and the next in series can be computed by calling adder with 
+    the previous instance of the problem and the popped off tail of fragment
+    '''
+
 class Solution(namedtuple("Solution", ['tank_order', 'start'])):
     '''A solution to an instance of the problem consists of:
     1. The list of fuel tanks f_1, f_2, .... f_n placed at positions
@@ -76,6 +85,7 @@ class Fuel_Placement_Problem:
         self.OPTsoln = OPTsoln
         self.name = name
         self.starts = starts
+        self.state = None
         
     #helper functions:
             
@@ -420,10 +430,41 @@ class Fuel_Placement_Problem:
             return softmax(fuel_levels, base, self.OPT)
         return self.general_local_search(cost, self.double_swap_positive_neighbors,
                                          ratio, solution)
-    
-    def insertion_fuel_distance(self):
-        pass
-        #some sort of candidate
+
+    def increment_construct(self, (fuelss, distancess, fragments), nsoln, adder, alg):
+        ofuels = self.fuels
+        odistances = self.distances
+        while fragments:
+            self.fuels = Counter(fuelss.pop())
+            self.distances = distancess.pop()
+            soln = adder(nsoln, fragments.pop())
+            nsoln = alg(soln)
+        self.fuels = ofuels
+        self.distances = odistances
+        return nsoln
+
+    def insertion_fuel_distance(self, pot_fn, tank_order = None):
+        '''
+        start with candidate solution
+        looping through, add one segment at a time
+        compute fuel_level if last fuel is inserted at each point in fuels
+        '''
+        if tank_order = None:
+            tanks = list(self.fuels.elements())
+        else: 
+            tanks = tank_order[:]
+        head = [0]*len(tanks)
+        i = 0
+        while tanks:
+            head[i] = tanks.pop(0)
+            head2 = iinsert(head[:],i)
+            i+=1
+            P = Fuel_Placement_Problem(head, self.distances)
+            L1 = P.fuel_levels(Solution(head,0))
+            L2 = P.fuel_levels(Solution(head2,0))
+            if pot_fn(L2) < pot_fn(L1):
+                head = head2
+        
 
     def insertion_fuel(self):
         pass
