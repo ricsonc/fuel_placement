@@ -1,0 +1,76 @@
+march 9th progress:
+
+review:
+1. max2/softmax for local search
+2. the bad case
+3. double swap
+4. the multiple peak question
+
+q: suppose we have a bunch of locally optimal peaks. can we show that either there is a valid swap between adjacent peaks or that we are optimal?
+
+a: in order for there to be some valid swap, all up-slopes must decrease and all down-slopes must increase. there needs to be some fuel going from the up-slopes to the down-slopes. since up-slopes have smaller tanks than their partner down-slopes, this is difficult. however, it is possible that there is a up-slope larger than a down-slope. 
+
+the problem is that when we try to route fuel this way, it is difficult to decrease *all* the up-slopes and increase *all* the down-slopes
+
+q: can we prove any bounds for max2?
+
+a: 
+for fuels and distances 0/1, max2 is optimal
+suppose it is not optimal, then it has either a max or a min
+consider any maximum at w > 1
+at some point to the left, we increase from w-1 to w with a fuel 1 (fuel must be 1)
+at some point to the right, we decrease from w-1 to w-2 with a fuel 0 (the first time must be 0)
+swap these.
+consider any minimum at v < 0
+at some point to the left, we decrease from v+1 to v with a fuel 0 (leftmost drop must be 0)
+at some point to the right, we increase from v to v+1 with a fuel 1 (fuel must be 1)
+swap these.
+in either case, we have reduced the potential. contradiction. qed.
+
+this proof does not hold for fuels and distances in {a,b}, d = b-a, b > a
+
+q: can we prove any bounds for double swap max2 which are stronger?
+
+a: ###
+
+q: using max2 instead of softmax does not seem robust because we do not know anything below the frontier. can we break max2 by
+1. using a 0,1,4 combination?
+2. using more than 2 peaks in a row?
+3. using a 0,a,b combination where a does not divide b? (for example, 2 and 5)?
+4. any combination of the above?
+
+a: no, no, no, and no
+
+q: can we prove any bounds for softmax? how does greedy with softmax work? why can/can't we apply it here?
+
+a: ###
+
+q: it seems that if we deal with one peak at a time, we can get out of many bad cases
+
+a: try adding one fuel into consideration at a time. then, run local search until we find a stable local optimum, repeat. this yields good solutions for max2 and double max2. notice that this also lends itself to inductive proofs.
+
+q: notice that this looks very similar to the insertion sort algorithm. what if instead of local searching, we just try inserting at the best spot, or swapping into the best location?
+
+a: this results in bad solutions.
+
+q: can we prove any bounds for this incremental construction that are stronger?
+
+a: ###
+
+q: what about incremental with softmax?
+
+a: ###
+
+q: is there a DP for this problem which can be rounded like in the knapsack FPTAS?
+
+a: Let M(i, S) be the size of the smallest tank with which the first i stops can be reached using only the fuels in S, i = |S|.
+M(0,[]) = 0
+M(i, S) = max over f in S: M(i-1, S\f)
+We want to find M(n, F)
+Then the DP-table is O(n*2^n)
+problem: knapsack is trying to max value -- we are trying to min space
+another problem: with knapsack, if we lose a constant factor on every item, we end up being off by a constant factor in final solution. however, if we are off a constant factor for each fuel in gasoline problem, the final solution can be off by O(n)
+
+q: with incremental, is starting position important?
+
+a: ###
