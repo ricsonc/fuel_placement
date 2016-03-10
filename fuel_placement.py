@@ -38,16 +38,31 @@ def preparedir(file):
 def softmax(X, base, OPT):
     return sum((base**(float(x)/OPT) for x in X))
 
-#class definitions:
+def soln_wrap(soln):
+    '''returns a soln_attempt containing a single solution'''
+    return Soln_Attempt(True, [soln], [])
 
-class Partial(namedtuple("Partial",['fuelss', 'distancess', 
-                                    'base', 'fragments', 'adder'])):
-    '''
-    Partial contains the ingredients needed to construct a series of 
-    incomplete fuel placement problems. this series starts with the base
-    and the next in series can be computed by calling adder with 
-    the previous instance of the problem and the popped off tail of fragment
-    '''
+def soln_unwrap(attempt):
+    '''returns a solution given a soln_attempt'''
+    return (attempt.solns+attempt.fails)[0]
+
+def swap(lst, i1, i2):
+    lst[i1],lst[i2] = lst[i2],lst[i1]
+
+def insert(lst, i1, i2):
+    lst.insert(i1,lst[i2])
+    lst.pop(i2+1)
+
+#potential functions
+
+def max2(fuel_levels):
+    min_level = min(fuel_levels)
+    max_level = max(fuel_levels)
+    return (max_level-min_level+
+            (fuel_levels.count(min_level)+
+             fuel_levels.count(max_level))*1E-10)
+
+#class definitions:
 
 class Solution(namedtuple("Solution", ['tank_order', 'start'])):
     '''A solution to an instance of the problem consists of:
@@ -97,6 +112,8 @@ class Fuel_Placement_Problem:
         '''returns the amount of fuel in the tank at each p_i 
         before and after tank is filled
         soln: a Solution to this instance
+
+        starts from 0 and ends at 0
         '''
         rot_distances = rotate(self.distances, soln.start)
         fuels = [0]
@@ -175,8 +192,8 @@ class Fuel_Placement_Problem:
             current_fuel -= distance
         return Solution(tank_order, start)
 
-    def general_local_search(self, cost_fn, neighbor_fn,
-                             ratio, solution, verbose = True, debug = True):
+    def general_local_search(self, cost_fn, neighbor_fn, ratio, solution, 
+                             maxiters = 0, verbose = False, debug = False):
         '''runs local search given a potential_fn, a neighbor_fn, 
         a ratio at which to stop, a starting solution'''
         potential_fn = lambda solution: cost_fn(self.fuel_levels(solution))
@@ -198,7 +215,7 @@ class Fuel_Placement_Problem:
                 return Soln_Attempt(False, [], [solution])
             solution = min(good_neighbors, key = lambda x: potential_fn(x))
             current_cost = potential_fn(solution)
-            if current_cost < self.OPT*ratio:
+            if current_cost < self.OPT*ratio or (i and i >= maxiters):
                 if debug:
                     self.plot_soln(solution, 'debug/'+str(i)) ###
                 return Soln_Attempt(True, [solution], [])
@@ -367,9 +384,9 @@ class Fuel_Placement_Problem:
         and the all_neighbors as the neighbor function'''
         def cost(fuel_levels):
             return log(sum((exp(abs(val)) for val in fuel_levels)))
-        return self.general_local_search(cost, self.all_neighbors, ratio, 
+        return self.general_local_search(cost, self.swap_2_neighbors, ratio, 
                                          solution)
-
+                                         
     def softmax_positive_local_search(self, ratio = 1):
         '''runs local search with the softmax cost function 
         and the positive_neighbors as the neighbor function'''
@@ -401,17 +418,19 @@ class Fuel_Placement_Problem:
             return (max_level-min_level+
                     (fuel_levels.count(min_level)+
                      fuel_levels.count(max_level))*1E-10)
-        return self.general_local_search(cost, self.double_swap_neighbors, ratio, 
-                                         solution)
+        return self.general_local_search(cost, self.double_swap_neighbors, 
+                                         ratio, solution)
 
-    def doubleswap_softmax_rotate_LS(self, base = 2, ratio = 1.0001, solution = None):
+    def doubleswap_softmax_rotate_LS(self, base = 2, ratio = 1.0001, 
+                                     solution = None):
         def cost(fuel_levels):
             return softmax([val-min(fuel_levels) for val in fuel_levels],
                            base, self.OPT)
         return self.general_local_search(cost, self.double_swap_neighbors, ratio,
                                          solution)
 
-    def doubleswap_softmax_center_LS(self, base = 2, ratio = 1.0001, solution = None):
+    def doubleswap_softmax_center_LS(self, base = 2, ratio = 1.0001, 
+                                     solution = None):
         def cost(fuel_levels):
             center = (min(fuel_levels)+max(fuel_levels))/2.
             return softmax([abs(val-center) for val in fuel_levels],
@@ -419,67 +438,77 @@ class Fuel_Placement_Problem:
         return self.general_local_search(cost, self.double_swap_neighbors, ratio,
                                          solution)
 
-    def doubleswap_softmax_abs_LS(self, base = 2, ratio = 1.0001, solution = None):
+    def doubleswap_softmax_abs_LS(self, base = 2, ratio = 1.0001, 
+                                  solution = None):
         def cost(fuel_levels):
             return softmax([abs(val) for val in fuel_levels], base, self.OPT)
         return self.general_local_search(cost, self.double_swap_neighbors, ratio,
                                          solution)
 
-    def doubleswap_softmax_positive_LS(self, base = 2, ratio = 1.0001, solution = None):
+    def doubleswap_softmax_positive_LS(self, base = 2, ratio = 1.0001, 
+                                       solution = None):
         def cost(fuel_levels):
             return softmax(fuel_levels, base, self.OPT)
         return self.general_local_search(cost, self.double_swap_positive_neighbors,
                                          ratio, solution)
 
-    def increment_construct(self, (fuelss, distancess, fragments), nsoln, adder, alg):
-        ofuels = self.fuels
-        odistances = self.distances
-        while fragments:
-            self.fuels = Counter(fuelss.pop())
-            self.distances = distancess.pop()
-            soln = adder(nsoln, fragments.pop())
-            nsoln = alg(soln)
-        self.fuels = ofuels
-        self.distances = odistances
-        return nsoln
+    #are all the fuels being used correctly? why is the end result so poor?
 
-    def insertion_fuel_distance(self, pot_fn, tank_order = None):
-        '''
-        start with candidate solution
-        looping through, add one segment at a time
-        compute fuel_level if last fuel is inserted at each point in fuels
-        '''
-        if tank_order = None:
-            tanks = list(self.fuels.elements())
-        else: 
-            tanks = tank_order[:]
-        head = [0]*len(tanks)
-        i = 0
-        while tanks:
-            head[i] = tanks.pop(0)
-            head2 = iinsert(head[:],i)
-            i+=1
-            P = Fuel_Placement_Problem(head, self.distances)
-            L1 = P.fuel_levels(Solution(head,0))
-            L2 = P.fuel_levels(Solution(head2,0))
-            if pot_fn(L2) < pot_fn(L1):
-                head = head2
-        
+    def incremental_LS(self, pot_fn, neighbor_fn, maxiters = 0, 
+                       solution = None, name = '', verbose = True, debug = True):
+        '''we call general local search repeatedly with 
+        different potential functions'''
+        if debug:
+            self.plot_soln(solution, 'debug/'+name+'/0') ###
+        for i in range(1,self.n):
+            if verbose:
+                print "incremental iteration: "+str(i)+'-'*20
+            if debug:
+                cost_fn = lambda x: pot_fn(x[1:2*i+1])
+                print 'fuel levels: ', self.fuel_levels(solution)[i:2*i+1]
+                print 'iteration start:', cost_fn(self.fuel_levels(solution))
+                self.plot_soln(solution, 'debug/'+name+'/'+str(i)) ###
+            solution = soln_unwrap(self.general_local_search(
+                    lambda x: pot_fn(x[1:2*i+1]), 
+                    neighbor_fn(i), 0, solution, maxiters = maxiters))
+            if debug:
+                print 'fuel levels: ', self.fuel_levels(solution)[i:2*i+1]
+                print 'iteration end:', cost_fn(self.fuel_levels(solution))
+        return soln_wrap(solution)
 
-    def insertion_fuel(self):
-        pass
+    def incremental_max2(self, solution = None):
+        return self.incremental_LS(max2, lambda i: self.swap_2_neighbors, 
+                                   0, solution, 'max2')
 
-    def insertion_swap_fuel_distance(self):
-        pass
+    def incremental_double_max2(self, solution = None):
+        return self.incremental_LS(max2, lambda i: self.double_swap_neighbors,
+                                   0, solution, 'double_max2')
 
-    def insertion_swap_fuel(self):
-        pass
+    def incremental_swap(self, pot_fn = max2, solution = None):
+        def neighbor_fn(i):
+            def get_neighbors(soln):
+                '''passed a soln, it will swap i with some less'''
+                neighbors = []
+                for j in range(i):
+                    nsoln = Solution(solution.tank_order, solution.start)
+                    swap(nsoln.tank_order,i,j)
+                    neighbors.append(nsoln)
+                return neighbors
+            return get_neighbors
+        return self.incremental_LS(pot_fn, neighbor_fn, 1, solution, 'swap')
 
-    def insertion_shift_fuel_distance(self):
-        pass
-
-    def insertion_shift_fuel(self):
-        pass
+    def incremental_insert(self, pot_fn = max2, solution = None):
+        def neighbor_fn(i):
+            def get_neighbors(soln):
+                '''passed a soln, it will swap i with some less'''
+                neighbors = []
+                for j in range(i):
+                    nsoln = Solution(solution.tank_order, solution.start)
+                    insert(nsoln.tank_order,i,j)
+                    neighbors.append(nsoln)
+                return neighbors
+            return get_neighbors
+        return self.incremental_LS(pot_fn, neighbor_fn, 1, solution, 'insert')
 
     def min_next(self, ratio = 3, check_fn = None):
         #check both upper and lower
@@ -534,7 +563,7 @@ class Fuel_Placement_Problem:
         return ratio
         
     def plot_soln(self, soln, name = '', hbars = [-1,0,1,2,3], aspectr = 1,
-                  scale = 1, verbose = True, annotations = False):
+                  scale = 1, verbose = False, annotations = False):
         '''plots a Solution:
         name is optional
         hbars are horizontal bars plotted at certain multiples of OPT
@@ -542,6 +571,8 @@ class Fuel_Placement_Problem:
         verbose prints filename once it has been saved to disk
         if python crashes in this function, try reducing scale
         '''
+        self.valid_soln(soln)
+
         #check if matplotlib available
         global MPL
         if not MPL:
@@ -633,4 +664,3 @@ class Fuel_Placement_Problem:
         '''save the instance to disk'''
         with open(self.name, 'r') as ouf:
             dump(ouf)
-            

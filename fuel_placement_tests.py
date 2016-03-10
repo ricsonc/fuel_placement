@@ -198,6 +198,17 @@ def LS_test_case(n, unit, full, r, name):
                                        name, r*2*full*n)
     return test_case, Solution(fuels,0)
 
+def LS_test_case2(n, unit, full, r, name):
+    '''returns a test case and a candidate solution'''
+    distances = ([0]*(full-1)*n+[full*unit]*n)*r+([unit]*full*n)*r
+    fuels = ([unit]*full*n)*r+([full*unit]+[0]*(full-1))*n*r
+    OPT = full*unit
+    OPTsoln = Solution(distances, 0)
+    test_case = Fuel_Placement_Problem(fuels, distances, OPT, OPTsoln,
+                                       name, r*2*full*n)
+    return test_case, Solution(fuels, 0)
+
+
 def bad_LS(do_plot = True):
     '''tests local search max
     local search gets 2OPT on this test case'''
@@ -308,7 +319,7 @@ def LS5_test(do_plot = True):
 
 def LS_doubleswap_tests():
     '''test how well doubleswap does'''
-    test_case, soln = LS_test_case(8, 5, 2, 2, 'doubleswap_tests')
+    test_case, soln = LS_test_case2(6, 5, 2, 2, 'doubleswap_tests')
     kwargs = {'solution':soln}
     for alg in [test_case.doubleswap_softmax_positive_LS,
                 test_case.doubleswap_softmax_center_LS,
@@ -318,7 +329,8 @@ def LS_doubleswap_tests():
         test_case.soln_attempt_plot(alg, **kwargs)
 
 def LS_test_max2():
-    test_case, soln = LS_test_case(6, 5, 2, 2, 'max2_tests')
+    '''this will fail'''
+    test_case, soln = LS_test_case2(6, 5, 2, 2, 'max2_tests')
     test_case.soln_attempt_plot(test_case.max2_local_search,
                                 **{'solution':soln})
 
@@ -336,9 +348,18 @@ def LS_test_max2_2():
                                 **{'solution':Solution(fuels,0)})
 
 
+def incremental_test():
+    test_case, soln = LS_test_case2(6, 5, 2, 2, 'incremental_tests')
+    kwargs = {'solution':soln}
+    for alg in [test_case.incremental_max2,
+                test_case.incremental_swap,
+                test_case.incremental_insert,
+                test_case.incremental_double_max2]:
+        print "running "+str(alg)
+        test_case.soln_attempt_plot(alg, **kwargs)
 
 def main():
-    LS_test_max2_2()
+    incremental_test()
     
 if __name__ == '__main__':
     main()
