@@ -351,9 +351,11 @@ def LS_test_max2_2():
 def incremental_test():
     test_case, soln = LS_test_case2(6, 5, 2, 2, 'incremental_tests')
     kwargs = {'solution':soln}
-    for alg in [test_case.incremental_max2,
+    for alg in [test_case.incremental_softmax,
+                test_case.incremental_double_softmax,
                 test_case.incremental_swap,
-                test_case.incremental_insert,
+                test_case.incremental_insert, #problem with this
+                test_case.incremental_max2,
                 test_case.incremental_double_max2]:
         print "running "+str(alg)
         test_case.soln_attempt_plot(alg, **kwargs)

@@ -1,0 +1,62 @@
+Exchanging a high with a low "drops" the section in between.
+However, if a point in the section hits zero, the section stops dropping and the outside rises.
+This can be bad if there is a near-maximum outside the section, which can rise above current max.
+
+Therefore, we consider swaps above OPT, so that we will never hit zero.
+Claim: 
+If max > O(1)*OPT, then there is a valid swap above OPT
+If there is no valid swap above OPT, max <= O(1)*OPT
+
+All the rising tanks are smaller than all the falling tanks.
+Proof for fuels f and F:
+
+Consider the fuels on the right and left slopes:
+f and F
+f/F and F
+f and f/F
+
+In case 1 and 3, the rise cannot be more than OPT
+In case 1 and 2, the fall cannot be more than OPT
+Therefore, max <= 2*OPT
+
+Counterexample for 3 fuels:
+
+We are cutting the instance into two.
+There exists a "small" solution when we can use all the fuels and distances.
+The solution becomes large when 0.
+
+Consider the case where O(max fuel + max distance) < OPT
+
+
+
+
+
+
+
+Add to the case to make an small solution.
+
+
+
+
+
+
+Edge case -- add one more fuel.
+
+
+
+local-search still solves this by picking fuels under OPT
+
+Picking above OPT swaps is only necessary when near-maximum is outside.
+If near-maximum is inside, all swaps are ok
+
+
+
+
+
+Counterexample by trapping the fuels inside.
+
+local-search (max2) fails on this
+softmax fails on this because it must raise the minimums to improve
+softmax center gets 2 OPT
+softmax abs gets 2.5 OPT
+

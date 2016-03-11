@@ -8,6 +8,7 @@ from cPickle import load, dump
 from pkgutil import find_loader
 from importlib import import_module
 from math import log, exp
+import math
 
 #test if matplotlib is available
 if find_loader('matplotlib') is not None:
@@ -61,6 +62,8 @@ def max2(fuel_levels):
     return (max_level-min_level+
             (fuel_levels.count(min_level)+
              fuel_levels.count(max_level))*1E-10)
+
+
 
 #class definitions:
 
@@ -484,6 +487,18 @@ class Fuel_Placement_Problem:
         return self.incremental_LS(max2, lambda i: self.double_swap_neighbors,
                                    0, solution, 'double_max2')
 
+    def incremental_softmax(self, base = math.e, solution = None):
+        def cost(fuel_levels):
+            return softmax([abs(val) for val in fuel_levels], base, self.OPT)
+        return self.incremental_LS(cost, lambda i: self.swap_2_neighbors,
+                                   0, solution, 'softmax')
+
+    def incremental_double_softmax(self, base = math.e, solution = None):
+        def cost(fuel_levels):
+            return softmax([abs(val) for val in fuel_levels], base, self.OPT)
+        return self.incremental_LS(cost, lambda i: self.double_swap_neighbors,
+                                   0, solution, 'double_softmax')
+    
     def incremental_swap(self, pot_fn = max2, solution = None):
         def neighbor_fn(i):
             def get_neighbors(soln):
